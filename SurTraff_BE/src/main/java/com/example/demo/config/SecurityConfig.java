@@ -41,6 +41,39 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+//@Configuration
+//@EnableWebSecurity
+//public class SecurityConfig {
+//
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        return http
+//                .csrf(csrf -> csrf.disable())
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 🔥 Quan trọng
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(HttpMethod.OPTIONS).permitAll()
+//                        .requestMatchers(
+//                                "/api/users/login",
+//                                "/api/users/register",
+//                                "/api/users/signin",
+//                                "/api/users/forgotPassword",
+//                                "/swagger-ui/**",
+//                                "/v3/api-docs/**",
+//                                "/swagger-ui.html"
+//                        ).permitAll()
+//                        .anyRequest().authenticated()
+//                )
+//                .formLogin(form -> form.disable())
+//                .httpBasic(basic -> basic.disable())
+//                .build();
+//    }
+//
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+//}
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -49,19 +82,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 🔥 Quan trọng
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                        .requestMatchers(
-                                "/api/users/login",
-                                "/api/users/register",
-                                "/api/users/signin",
-                                "/api/users/forgotPassword",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll() // ✅ Cho phép tất cả các request
                 )
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())

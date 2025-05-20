@@ -53,10 +53,11 @@ public class UserController {
         newUser.setFullName(userDTO.getName());
         newUser.setUserName(userDTO.getUserName());
         newUser.setPassword(userDTO.getPassword());
-        newUser.setEmail(userDTO.getEmail());
-        newUser.setStatus(userDTO.getStatus());
-        newUser.setAvatar(userDTO.getAvatar());
 
+        newUser.setStatus(true);
+        newUser.setAvatar("https://th.bing.com/th/id/OIP.Fogk0Q6C7GEQEdVyrbV9MwHaHa?rs=1&pid=ImgDetMain");
+        newUser.setRole(roleService.getRoleById(1L).get());
+        System.out.println(roleService.getRoleById(1L).get());
         try {
             userService.createUser(newUser);
 

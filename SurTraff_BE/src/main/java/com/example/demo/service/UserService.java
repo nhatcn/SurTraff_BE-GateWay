@@ -87,7 +87,6 @@ public class UserService {
             existingUser.setFullName(updatedUser.getUserName());
             existingUser.setEmail(updatedUser.getEmail());
 
-            // ✅ Nếu mật khẩu mới != null và không rỗng, mã hóa lại
             if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
                 existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
             }
