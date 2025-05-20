@@ -7,6 +7,23 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
+//@Configuration
+//public class SecurityConfig {
+//
+//    @Bean
+//    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+//        return http
+//                .csrf(csrf -> csrf.disable())
+//                .authorizeExchange(exchanges -> exchanges
+//                        .pathMatchers(HttpMethod.OPTIONS).permitAll()
+//                        .pathMatchers("/api/users/login", "/api/users/register", "/api/users/signin", "/api/users/forgotPassword","/api/users").permitAll()
+//                        .anyExchange().authenticated()
+//                )
+//                .httpBasic(hb -> hb.disable())
+//                .formLogin(fl -> fl.disable())
+//                .build();
+//    }
+//}
 @Configuration
 public class SecurityConfig {
 
@@ -15,12 +32,10 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                        .pathMatchers("/api/users/login", "/api/users/register", "/api/users/signin", "/api/users/forgotPassword","/api/users").permitAll()
-                        .anyExchange().authenticated()
+                        .anyExchange().permitAll() 
                 )
-                .httpBasic(hb -> hb.disable())
-                .formLogin(fl -> fl.disable())
+                .httpBasic(httpBasicSpec -> httpBasicSpec.disable())
+                .formLogin(formLoginSpec -> formLoginSpec.disable())
                 .build();
     }
 }
