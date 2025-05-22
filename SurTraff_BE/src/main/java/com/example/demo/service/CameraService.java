@@ -35,7 +35,7 @@ public class CameraService {
         
         camera.setName(cameraDetails.getName());
         camera.setLocation(cameraDetails.getLocation());
-        camera.setLocationAddress(cameraDetails.getLocationAddress());
+//        camera.setLocationAddress(cameraDetails.getLocationAddress());
         camera.setStreamUrl(cameraDetails.getStreamUrl());
         camera.setThumbnail(cameraDetails.getThumbnail());
         

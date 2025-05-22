@@ -5,34 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ea38b950-3f77-487c-a6ab-e1818c10c174" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/JPAMappingSettings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/POJOGeneratorSettings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/LaneMovementDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/RoleDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/ZoneDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/ZoneLightLaneDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/LaneMovementController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/RoleController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ZoneController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ZoneLightLaneController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/LaneMovement.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Zone.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/ZoneLightLane.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/LaneMovementRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ZoneLightLaneRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ZoneRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/LaneMovementService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/ZoneLightLaneService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/ZoneService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/AccidentDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/AccidentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf/storage_v2/_src_/database/surtraff2.PwWUbw.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf/storage_v2/_src_/database/surtraff2.PwWUbw/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf/storage_v2/_src_/database/surtraff2.PwWUbw/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf/storage_v2/_src_/database/surtraff2.PwWUbw/schema/public.abK9xQ.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/CameraController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/CameraController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Camera.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Camera.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/CameraRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/CameraRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/CameraService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/CameraService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/RoleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/RoleService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Accident.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Accident.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/AccidentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/AccidentRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/AccidentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/AccidentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,20 +44,15 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Code_DOAN/SurTraff_BE-GateWay" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.example.demo.DTO" />
+      <recent name="com.example.demo.controller" />
+    </key>
   </component>
   <component name="RunManager" selected="Spring Boot.DemoApplication (1)">
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="DemoApplication (1)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <module name="demo" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.demo.DemoApplication" />
@@ -103,6 +84,10 @@
       <workItem from="1747807718067" duration="5178000" />
       <workItem from="1747842525247" duration="645000" />
       <workItem from="1747872891625" duration="3463000" />
+      <workItem from="1747923537108" duration="760000" />
+      <workItem from="1747924559416" duration="169000" />
+      <workItem from="1747924756490" duration="181000" />
+      <workItem from="1747925150829" duration="1422000" />
     </task>
     <servers />
   </component>
