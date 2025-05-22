@@ -1,35 +1,27 @@
 package com.example.demo.model;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
-@Entity
-@Table(name = "camera")
 @Getter
-@Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
 public class Camera {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private String name;
-
-    @Column(columnDefinition = "TEXT")
     private String location;
-
-    private Double latitude;
-    private Double longitude;
-
-    @Column(columnDefinition = "TEXT")
+    private String locationAddress;
     private String streamUrl;
-
-    @Column(columnDefinition = "TEXT")
     private String thumbnail;
 
-    private String status = "true";
-
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @OneToMany(mappedBy = "camera", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Zone> zones;
 }
