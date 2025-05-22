@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="surtraff2@localhost" uuid="c013840d-8de9-45fb-833a-98110ec199cf">
+    <data-source source="LOCAL" name="SurTraff@localhost" uuid="5560729c-baad-42d8-86e9-993daf53b64e">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/surtraff2</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/SurTraff</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
