@@ -75,7 +75,7 @@ public class ViolationService {
             existingViolation.setViolationType(violationType);
         }
         if (updated.getVehicleType() != null && updated.getVehicleType().getId() != null) {
-            VehicleType vehicleType = vehicleTypeRepository.findById(updated.getVehicleType().getId()longValue())
+            VehicleType vehicleType = vehicleTypeRepository.findById(updated.getVehicleType().getId().longValue())
                     .orElseThrow(() -> new EntityNotFoundException("Loại xe không tồn tại với ID: " + updated.getVehicleType().getId()));
             existingViolation.setVehicleType(vehicleType);
         }

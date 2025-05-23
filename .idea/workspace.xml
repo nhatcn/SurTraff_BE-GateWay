@@ -6,9 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="ea38b950-3f77-487c-a6ab-e1818c10c174" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ViolationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ViolationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ViolationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ViolationRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/ViolationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/ViolationService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,7 +81,8 @@
       <workItem from="1747954270475" duration="32000" />
       <workItem from="1747954317252" duration="103000" />
       <workItem from="1747954435151" duration="54000" />
-      <workItem from="1747954524689" duration="451000" />
+      <workItem from="1747954524689" duration="1939000" />
+      <workItem from="1747956699434" duration="581000" />
     </task>
     <servers />
   </component>
