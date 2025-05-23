@@ -5,25 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ea38b950-3f77-487c-a6ab-e1818c10c174" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/AccidentDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/AccidentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf/storage_v2/_src_/database/surtraff2.PwWUbw.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf/storage_v2/_src_/database/surtraff2.PwWUbw/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf/storage_v2/_src_/database/surtraff2.PwWUbw/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf/storage_v2/_src_/database/surtraff2.PwWUbw/schema/public.abK9xQ.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Accident.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Accident.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/AccidentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/AccidentRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/AccidentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/AccidentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -44,7 +34,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Code_DOAN/SurTraff_BE-GateWay" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -88,6 +78,11 @@
       <workItem from="1747924559416" duration="169000" />
       <workItem from="1747924756490" duration="181000" />
       <workItem from="1747925150829" duration="1422000" />
+      <workItem from="1747954270475" duration="32000" />
+      <workItem from="1747954317252" duration="103000" />
+      <workItem from="1747954435151" duration="54000" />
+      <workItem from="1747954524689" duration="1939000" />
+      <workItem from="1747956699434" duration="581000" />
     </task>
     <servers />
   </component>
