@@ -1,0 +1,21 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+.idea/workspace.xml
+.idea/tasks.xml
+
+# Logs
+*.log
+
+# Build output
+/build/
+/out/
+/target/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
