@@ -124,8 +124,6 @@ public class CameraService {
                         .cameraId(camera.getId())
                         .zoneType(zone.getZoneType().name()) // giữ nguyên lowercase
                         .coordinates(zone.getCoordinates())
-                        .createdAt(zone.getCreatedAt())
-                        .updatedAt(zone.getUpdatedAt())
                         .build())
                 .toList();
 
