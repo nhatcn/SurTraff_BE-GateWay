@@ -10,4 +10,5 @@ public interface LaneMovementRepository extends JpaRepository<LaneMovement, Long
     List<LaneMovement> findByFromLaneZoneId(Long fromLaneZoneId);
     List<LaneMovement> findByToLaneZoneId(Long toLaneZoneId);
     void deleteByFromLaneZoneIdAndToLaneZoneId(Long fromLaneZoneId,Long  toLaneZoneId);
+    List<LaneMovement> findByFromLaneZoneCameraId(Long cameraId);
 } 

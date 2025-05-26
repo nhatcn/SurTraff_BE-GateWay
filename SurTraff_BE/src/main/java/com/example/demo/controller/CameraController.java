@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.DTO.CameraSetupDTO;
+import com.example.demo.DTO.CameraWithZonesDTO;
 import com.example.demo.model.Camera;
 import com.example.demo.service.CameraService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/cameras")
@@ -21,10 +24,13 @@ public class CameraController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Camera> getCameraById(@PathVariable Long id) {
-        return cameraService.getCameraById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<CameraWithZonesDTO> getCameraWithZones(@PathVariable Long id) {
+        try {
+            CameraWithZonesDTO dto = cameraService.getCameraWithZones(id);
+            return ResponseEntity.ok(dto);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
@@ -49,6 +55,18 @@ public class CameraController {
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/setup")
+    public ResponseEntity<String> setupCamera(@RequestBody CameraSetupDTO setupDTO) {
+        try {
+            cameraService.setupCamera(setupDTO);
+            return ResponseEntity.ok("Camera setup successful");
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body("Setup failed: " + ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().body("Server error: " + ex.getMessage());
         }
     }
 }

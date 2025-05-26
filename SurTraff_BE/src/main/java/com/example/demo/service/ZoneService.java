@@ -1,4 +1,5 @@
 package com.example.demo.service;
+
 import com.example.demo.DTO.ZoneDTO;
 import com.example.demo.model.Camera;
 import com.example.demo.model.Zone;
@@ -28,8 +29,6 @@ public class ZoneService {
                 .cameraId(zone.getCamera() != null ? zone.getCamera().getId() : null)
                 .zoneType(zone.getZoneType().name())
                 .coordinates(zone.getCoordinates())
-                .createdAt(zone.getCreatedAt())
-                .updatedAt(zone.getUpdatedAt())
                 .build();
     }
 
@@ -58,9 +57,11 @@ public class ZoneService {
 
     @Transactional
     public ZoneDTO createZone(ZoneDTO dto) {
-        Zone zone = dto.toEntity();
-        zone.setCreatedAt(LocalDateTime.now());
-        zone.setUpdatedAt(LocalDateTime.now());
+        Zone zone = Zone.builder()
+                .name(dto.getName())
+                .coordinates(dto.getCoordinates())
+                .zoneType(Zone.ZoneType.valueOf(dto.getZoneType()))
+                .build();
 
         if (dto.getCameraId() != null) {
             Camera camera = cameraRepository.findById(dto.getCameraId())
@@ -69,7 +70,9 @@ public class ZoneService {
         }
         return convertToDTO(zoneRepository.save(zone));
     }
-
+    public Optional<Long> getLatestZoneId() {
+        return zoneRepository.findTopByOrderByIdDesc().map(Zone::getId);
+    }
     @Transactional
     public ZoneDTO updateZone(Long id, ZoneDTO dto) {
         return zoneRepository.findById(id)

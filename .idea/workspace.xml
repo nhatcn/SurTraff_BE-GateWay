@@ -5,39 +5,35 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ea38b950-3f77-487c-a6ab-e1818c10c174" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/JPAMappingSettings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/POJOGeneratorSettings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/LaneMovementDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/RoleDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/ZoneDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/ZoneLightLaneDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/LaneMovementController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/RoleController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ZoneController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ZoneLightLaneController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/LaneMovement.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Zone.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/ZoneLightLane.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/LaneMovementRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ZoneLightLaneRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ZoneRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/LaneMovementService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/ZoneLightLaneService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/ZoneService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/CameraDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/CameraSetupDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/CameraWithZonesDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/ZoneDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/ZoneDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/CameraController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/CameraController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/LaneMovementController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/LaneMovementController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ZoneController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ZoneController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ZoneLightLaneController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ZoneLightLaneController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Camera.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Camera.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/CameraRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/CameraRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/LaneMovementRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/LaneMovementRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ZoneLightLaneRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ZoneLightLaneRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ZoneRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ZoneRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/CameraService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/CameraService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/RoleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/RoleService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/ZoneService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/ZoneService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -61,13 +57,15 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO" />
   </component>
   <component name="RunManager" selected="Spring Boot.DemoApplication (1)">
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
           <option name="containerStateName" value="" />
         </value>
       </option>
-      <option name="TEST_OBJECT" value="class" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <properties />
+      <listeners />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -102,7 +100,13 @@
       <workItem from="1747758407401" duration="594000" />
       <workItem from="1747807718067" duration="5178000" />
       <workItem from="1747842525247" duration="645000" />
-      <workItem from="1747872891625" duration="3463000" />
+      <workItem from="1747872891625" duration="11148000" />
+      <workItem from="1747918532776" duration="1838000" />
+      <workItem from="1747936560201" duration="2205000" />
+      <workItem from="1747979876322" duration="796000" />
+      <workItem from="1748163330254" duration="597000" />
+      <workItem from="1748191422167" duration="5128000" />
+      <workItem from="1748226092066" duration="7074000" />
     </task>
     <servers />
   </component>
