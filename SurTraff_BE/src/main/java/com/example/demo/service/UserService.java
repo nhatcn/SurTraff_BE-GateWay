@@ -84,20 +84,35 @@ public class UserService {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isPresent()) {
             User existingUser = userOptional.get();
-            existingUser.setFullName(updatedUser.getUserName());
-            existingUser.setEmail(updatedUser.getEmail());
+
+            if (updatedUser.getName() != null) {
+                existingUser.setFullName(updatedUser.getName());
+            }
+
+            if (updatedUser.getEmail() != null) {
+                existingUser.setEmail(updatedUser.getEmail());
+            }
 
             if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
                 existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
             }
 
-            existingUser.setStatus(updatedUser.getStatus());
-            existingUser.setRole(roleService.getRoleById(updatedUser.getRoleId()).get());
+            if (updatedUser.getStatus() != null) {
+                existingUser.setStatus(updatedUser.getStatus());
+            }
+
+            if (updatedUser.getRoleId() != null) {
+                existingUser.setRole(
+                        roleService.getRoleById(updatedUser.getRoleId())
+                                .orElseThrow(() -> new IllegalArgumentException("Role not found"))
+                );
+            }
 
             return userRepository.save(existingUser);
         }
         return null;
     }
+
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);

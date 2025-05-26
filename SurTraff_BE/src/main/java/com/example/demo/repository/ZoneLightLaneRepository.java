@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface ZoneLightLaneRepository extends JpaRepository<ZoneLightLane, Long> {
     List<ZoneLightLane> findByLaneZoneId(Long laneZoneId);
+    List<ZoneLightLane> findByLightZoneCameraId(Long cameraId);
 } 

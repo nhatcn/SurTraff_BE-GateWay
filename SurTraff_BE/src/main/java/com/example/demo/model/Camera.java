@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,10 +19,13 @@ public class Camera {
 
     private String name;
     private String location;
-//    private String locationAddress;
+
+   private String locationAddress;
+
     private String streamUrl;
     private String thumbnail;
-
+    private Double latitude;
+    private Double longitude;
     @OneToMany(mappedBy = "camera", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Zone> zones;
 }
