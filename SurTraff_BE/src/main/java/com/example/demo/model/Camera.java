@@ -20,7 +20,6 @@ public class Camera {
     private String name;
     private String location;
 
-   private String locationAddress;
 
     private String streamUrl;
     private String thumbnail;
