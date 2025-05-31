@@ -39,9 +39,9 @@ public class CameraController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Camera> updateCamera(@PathVariable Long id, @RequestBody Camera cameraDetails) {
+    public ResponseEntity<Camera> updateCamera(@RequestBody Camera cameraDetails) {
         try {
-            Camera updatedCamera = cameraService.updateCamera(id, cameraDetails);
+            Camera updatedCamera = cameraService.updateCamera(cameraDetails);
             return ResponseEntity.ok(updatedCamera);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

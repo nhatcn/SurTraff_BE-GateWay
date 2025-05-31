@@ -15,6 +15,7 @@ public class CameraSetupDTO {
     private Double latitude;
     private Double longitude;
     private List<ZoneDTO> zones;
+    private String thumbnail;
     private List<ZoneLightLaneDTO> zoneLightLaneLinks;
     private List<LaneMovementDTO> laneMovements;
 }

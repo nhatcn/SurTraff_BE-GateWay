@@ -22,5 +22,4 @@ public class AccidentController {
         return (accident != null) ? ResponseEntity.status(200).body(accident) : ResponseEntity.notFound().build();
     }
 
-
 }
