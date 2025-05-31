@@ -160,15 +160,15 @@ public class CameraService {
 
 
     @Transactional
-    public Camera updateCamera(Long id, Camera cameraDetails) {
-        Camera camera = cameraRepository.findById(id)
+    public Camera updateCamera(Camera cameraDetails) {
+        Camera camera = cameraRepository.findById(cameraDetails.getId())
                 .orElseThrow(() -> new RuntimeException("Camera not found"));
 
         camera.setName(cameraDetails.getName());
         camera.setLocation(cameraDetails.getLocation());
         camera.setStreamUrl(cameraDetails.getStreamUrl());
         camera.setThumbnail(cameraDetails.getThumbnail());
-
+        camera.setStatus(cameraDetails.getStatus());
         return cameraRepository.save(camera);
     }
 

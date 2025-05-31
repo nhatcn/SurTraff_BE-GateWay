@@ -8,7 +8,10 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "violations")
 @Getter
-@Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Violation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,23 +22,9 @@ public class Violation {
     private Camera camera;
 
     @ManyToOne
-    @JoinColumn(name = "violation_type_id")
-    private ViolationType violationType;
+    @JoinColumn(name = "vehicle_id")
+    private Vehicle vehicle;
 
-    @ManyToOne
-    @JoinColumn(name = "vehicle_type_id")
-    private VehicleType vehicleType;
-
-    private String licensePlate;
-    private String vehicleColor;
-    private String vehicleBrand;
-
-    @Column(columnDefinition = "TEXT")
-    private String imageUrl;
-
-    @Column(columnDefinition = "TEXT")
-    private String videoUrl;
-
-    private LocalDateTime violationTime;
+    @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ViolationRepository extends JpaRepository<Violation, Long> {
-    List<Violation> findByLicensePlateOrderByViolationTimeDesc(String licensePlate);
+//    List<Violation> findByLicensePlateOrderByViolationTimeDesc(String licensePlate);
 }

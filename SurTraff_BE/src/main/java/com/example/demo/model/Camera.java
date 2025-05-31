@@ -19,12 +19,11 @@ public class Camera {
 
     private String name;
     private String location;
-
-
     private String streamUrl;
     private String thumbnail;
     private Double latitude;
     private Double longitude;
+    private Boolean status;
     @OneToMany(mappedBy = "camera", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Zone> zones;
 }
