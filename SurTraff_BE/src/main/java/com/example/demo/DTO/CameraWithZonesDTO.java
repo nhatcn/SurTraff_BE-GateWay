@@ -15,6 +15,7 @@ public class CameraWithZonesDTO {
     private String streamUrl;
     private String location;
     private Double latitude;
+    private String thumbnail;
     private Double longitude;
     private List<ZoneDTO> zones;
     private List<ZoneLightLaneDTO> zoneLightLaneLinks;

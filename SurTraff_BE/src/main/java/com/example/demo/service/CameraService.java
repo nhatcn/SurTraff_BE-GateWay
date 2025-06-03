@@ -154,6 +154,7 @@ public class CameraService {
                 .zones(zoneDTOs)
                 .zoneLightLaneLinks(lightLaneDTOs)
                 .laneMovements(movementDTOs)
+                .thumbnail(camera.getThumbnail())
                 .build();
     }
 
