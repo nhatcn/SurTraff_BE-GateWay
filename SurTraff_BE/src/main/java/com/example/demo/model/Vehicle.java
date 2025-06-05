@@ -4,34 +4,34 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
-@Table(name = "violations")
+@Table(name = "vehicle")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Violation {
+public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    private String name;
+
+    @Column(name = "license_plate", nullable = false, unique = true)
+    private String licensePlate;
+
     @ManyToOne
-    @JoinColumn(name = "camera_id")
-    private Camera camera;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "vehicle_type_id")
     private VehicleType vehicleType;
 
-    @ManyToOne
-    @JoinColumn(name = "vehicle_id")
-    private Vehicle vehicle;
+    private String color;
+    private String brand;
 
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    @OneToMany(mappedBy = "violation", cascade = CascadeType.ALL)
-    private List<ViolationDetail> violationDetails;
 }
