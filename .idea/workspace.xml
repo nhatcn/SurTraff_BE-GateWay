@@ -5,8 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0c3e8f91-45b4-4390-a77b-b2219276b448" name="Default Changelist" comment="Merge branch 'main' of https://github.com/nhatcn/SurTraff_BE-GateWay into NhatNM&#10;&#10;# Conflicts:&#10;#&#9;.idea/dataSources.local.xml&#10;#&#9;SurTraff_BE/src/main/java/com/example/demo/repository/ViolationRepository.java">
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Zone.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Zone.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/CameraService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/CameraService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/AccidentDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Accident.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Accident.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/AccidentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/AccidentRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/AccidentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/AccidentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,18 +45,16 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Code_DOAN/backend/backend" />
   </component>
-  <component name="RunManager" selected="Spring Boot.DemoApplication (1)">
-    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
+  <component name="RunManager" selected="Spring Boot.DemoApplication">
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
           <option name="containerStateName" value="" />
         </value>
       </option>
-      <option name="TEST_OBJECT" value="CLASS" />
-      <properties />
-      <listeners />
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -93,6 +97,7 @@
       <workItem from="1748191422167" duration="5128000" />
       <workItem from="1748226092066" duration="7456000" />
       <workItem from="1749112510800" duration="3496000" />
+      <workItem from="1749143931843" duration="454000" />
     </task>
     <servers />
   </component>

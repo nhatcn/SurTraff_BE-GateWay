@@ -19,12 +19,14 @@ public class Accident {
     @JoinColumn(name = "camera_id")
     private Camera camera;
 
+    private String image_url;
+
     private String description;
 
-    private String videoUrl;
+    private String video_url;
 
     private String location;
 
-    private LocalDateTime accidentTime;
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime accident_time;
+    private LocalDateTime created_at = LocalDateTime.now();
 }
