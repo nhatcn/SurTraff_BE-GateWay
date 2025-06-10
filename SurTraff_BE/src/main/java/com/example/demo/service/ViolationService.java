@@ -31,9 +31,12 @@ public class ViolationService {
 
     private ViolationsDTO convertToDTO(Violation violation) {
         ViolationsDTO dto = new ViolationsDTO();
-        dto.setVehicleId(violation.getVehicle().getId());
+        if (violation.getVehicle() != null) {
+            dto.setVehicleId(violation.getVehicle().getId());
+        } else {
+            dto.setVehicleId(null); // hoặc gán 0, hoặc chuỗi "UNKNOWN", tuỳ bạn muốn xử lý thế nào
+        }
         dto.setCreatedAt(violation.getCreatedAt().toString());
-        dto.setVehicleId(violation.getVehicle().getId());
         return dto;
     }
 }
