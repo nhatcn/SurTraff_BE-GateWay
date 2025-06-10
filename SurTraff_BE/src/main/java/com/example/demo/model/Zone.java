@@ -38,7 +38,7 @@ public class Zone {
     private LocalDateTime updatedAt;
 
     public enum ZoneType {
-        line, lane, light
+        line, lane, light , speed
     }
 
 } 
