@@ -51,7 +51,8 @@ public class CameraService {
         camera.setStreamUrl(dto.getCameraUrl());
         camera.setLatitude(dto.getLatitude());
         camera.setLongitude(dto.getLongitude());
-
+        camera.setMaxSpeed(dto.getMaxSpeed());
+        camera.setLocation(camera.getLocation());
         camera = cameraRepository.save(camera);
 
         // 2. Lưu zone và ánh xạ ID tạm từ FE sang ID thật từ DB
@@ -147,6 +148,7 @@ public class CameraService {
         return CameraWithZonesDTO.builder()
                 .id(camera.getId())
                 .name(camera.getName())
+                .maxSpeed(camera.getMaxSpeed())
                 .streamUrl(camera.getStreamUrl())
                 .location(camera.getLocation())
                 .latitude(camera.getLatitude())

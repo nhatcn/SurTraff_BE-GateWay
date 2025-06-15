@@ -16,6 +16,7 @@ public class CameraWithZonesDTO {
     private String location;
     private Double latitude;
     private Double longitude;
+    private Integer maxSpeed;
     private List<ZoneDTO> zones;
     private List<ZoneLightLaneDTO> zoneLightLaneLinks;
     private List<LaneMovementDTO> laneMovements;

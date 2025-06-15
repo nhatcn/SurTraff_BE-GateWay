@@ -5,7 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0c3e8f91-45b4-4390-a77b-b2219276b448" name="Default Changelist" comment="Merge branch 'main' of https://github.com/nhatcn/SurTraff_BE-GateWay into NhatNM&#10;&#10;# Conflicts:&#10;#&#9;.idea/dataSources.local.xml&#10;#&#9;SurTraff_BE/src/main/java/com/example/demo/repository/ViolationRepository.java">
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Zone.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Zone.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf/storage_v2/_src_/database/surtraff2.PwWUbw.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf/storage_v2/_src_/database/surtraff2.PwWUbw/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf/storage_v2/_src_/database/surtraff2.PwWUbw/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/c013840d-8de9-45fb-833a-98110ec199cf/storage_v2/_src_/database/surtraff2.PwWUbw/schema/public.abK9xQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/CameraSetupDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/CameraSetupDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/CameraWithZonesDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/CameraWithZonesDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Camera.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Camera.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/ViolationDetail.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/ViolationDetail.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/CameraService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/CameraService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -42,19 +54,6 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO" />
   </component>
   <component name="RunManager" selected="Spring Boot.DemoApplication (1)">
-    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="CLASS" />
-      <properties />
-      <listeners />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="DemoApplication (1)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <module name="demo" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.demo.DemoApplication" />
@@ -92,7 +91,16 @@
       <workItem from="1748163330254" duration="597000" />
       <workItem from="1748191422167" duration="5128000" />
       <workItem from="1748226092066" duration="7456000" />
-      <workItem from="1749112510800" duration="3496000" />
+      <workItem from="1749112510800" duration="5802000" />
+      <workItem from="1749188643938" duration="852000" />
+      <workItem from="1749349291106" duration="4109000" />
+      <workItem from="1749357015662" duration="1016000" />
+      <workItem from="1749434361830" duration="1736000" />
+      <workItem from="1749719786029" duration="105000" />
+      <workItem from="1749832187187" duration="1382000" />
+      <workItem from="1749837615194" duration="658000" />
+      <workItem from="1749882028429" duration="873000" />
+      <workItem from="1749993283286" duration="605000" />
     </task>
     <servers />
   </component>

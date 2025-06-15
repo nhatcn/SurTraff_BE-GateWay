@@ -23,6 +23,8 @@ public class Camera {
     private String thumbnail;
     private Double latitude;
     private Double longitude;
+
+    private Integer maxSpeed;
     @OneToMany(mappedBy = "camera", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Zone> zones;
 }
