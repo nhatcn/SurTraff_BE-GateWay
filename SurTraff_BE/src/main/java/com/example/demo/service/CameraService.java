@@ -1,14 +1,8 @@
 package com.example.demo.service;
 
 import com.example.demo.DTO.*;
-import com.example.demo.model.Camera;
-import com.example.demo.model.LaneMovement;
-import com.example.demo.model.Zone;
-import com.example.demo.model.ZoneLightLane;
-import com.example.demo.repository.CameraRepository;
-import com.example.demo.repository.LaneMovementRepository;
-import com.example.demo.repository.ZoneLightLaneRepository;
-import com.example.demo.repository.ZoneRepository;
+import com.example.demo.model.*;
+import com.example.demo.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +23,9 @@ public class CameraService {
 
     @Autowired
     private LaneMovementRepository laneMovementRepository;
+
+    @Autowired
+    private ViolationTypeRepository violationTypeRepository;
 
     public List<Camera> getAllCameras() {
         return cameraRepository.findAll();
@@ -54,6 +51,7 @@ public class CameraService {
         camera.setMaxSpeed(dto.getMaxSpeed());
         camera.setLocation(camera.getLocation());
         camera = cameraRepository.save(camera);
+        camera.setViolationType(violationTypeRepository.findById(dto.getViolationTypeId()).get());
 
         // 2. Lưu zone và ánh xạ ID tạm từ FE sang ID thật từ DB
         Map<Long, Zone.ZoneType> zoneIdToType = new HashMap<>();
