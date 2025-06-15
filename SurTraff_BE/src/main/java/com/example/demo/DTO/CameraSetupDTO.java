@@ -14,6 +14,8 @@ public class CameraSetupDTO {
     private String cameraUrl;
     private Double latitude;
     private Double longitude;
+    private Integer maxSpeed;
+    private String location;
     private List<ZoneDTO> zones;
     private List<ZoneLightLaneDTO> zoneLightLaneLinks;
     private List<LaneMovementDTO> laneMovements;
