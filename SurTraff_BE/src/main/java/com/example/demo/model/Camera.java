@@ -27,5 +27,8 @@ public class Camera {
     private Integer maxSpeed;
     @OneToMany(mappedBy = "camera", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Zone> zones;
+    @ManyToOne
+    @JoinColumn(name = "violation_type_id")
+    private ViolationType violationType;
 
 }
