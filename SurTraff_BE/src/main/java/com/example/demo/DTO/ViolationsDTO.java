@@ -1,26 +1,14 @@
 package com.example.demo.DTO;
 
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ViolationsDTO {
     private Long id;
     private String createdAt;
-    private Integer vehicleId; // Sửa từ Long thành Integer
+    private Long vehicleId; }
 
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public String getCreatedAt() {
-        return createdAt;
-    }
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-    }
-    public Integer getVehicleId() {
-        return vehicleId;
-    }
-    public void setVehicleId(Integer vehicleId) {
-        this.vehicleId = vehicleId;
-    }
-}
