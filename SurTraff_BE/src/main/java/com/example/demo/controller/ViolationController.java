@@ -1,45 +1,45 @@
 package com.example.demo.controller;
 
+import com.example.demo.DTO.ViolationDetailDTO;
+import com.example.demo.DTO.ViolationsDTO;
 import com.example.demo.model.VehicleType;
-import com.example.demo.model.Violation;
-import com.example.demo.model.ViolationDetail;
 import com.example.demo.model.ViolationType;
 import com.example.demo.service.ViolationService;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/violations")
-@AllArgsConstructor
 public class ViolationController {
 
-    private final ViolationService violationService;
+    @Autowired
+    private ViolationService violationService;
 
     @GetMapping
-    public List<Violation> getAllViolations() {
+    public List<ViolationsDTO> getAllViolations() {
         return violationService.getAllViolations();
     }
 
     @GetMapping("/{id}")
-    public Violation getViolationById(@PathVariable Integer id) {
+    public ViolationsDTO getViolationById(@PathVariable Integer id) {
         return violationService.getViolationById(id);
     }
 
     @GetMapping("/history/{licensePlate}")
-    public List<Violation> getHistory(@PathVariable String licensePlate) {
+    public List<ViolationsDTO> getHistory(@PathVariable String licensePlate) {
         return violationService.getViolationHistory(licensePlate);
     }
 
     @PostMapping
-    public Violation createViolation(@RequestBody Violation violation) {
-        return violationService.createViolation(violation);
+    public ViolationsDTO createViolation(@RequestBody ViolationsDTO dto) {
+        return violationService.createViolation(dto);
     }
 
     @PutMapping("/{id}")
-    public Violation updateViolation(@PathVariable Integer id, @RequestBody Violation violation) {
-        return violationService.updateViolation(id, violation);
+    public ViolationsDTO updateViolation(@PathVariable Integer id, @RequestBody ViolationsDTO dto) {
+        return violationService.updateViolation(id, dto);
     }
 
     @DeleteMapping("/{id}")
@@ -68,13 +68,13 @@ public class ViolationController {
     }
 
     @PostMapping("/{id}/details")
-    public ViolationDetail addViolationDetail(@PathVariable Integer id, @RequestBody ViolationDetail detail) {
-        return violationService.addViolationDetail(id, detail);
+    public ViolationDetailDTO addViolationDetail(@PathVariable Integer id, @RequestBody ViolationDetailDTO dto) {
+        return violationService.addViolationDetail(id, dto);
     }
 
     @PutMapping("/details/{detailId}")
-    public ViolationDetail updateViolationDetail(@PathVariable Integer detailId, @RequestBody ViolationDetail detail) {
-        return violationService.updateViolationDetail(detailId, detail);
+    public ViolationDetailDTO updateViolationDetail(@PathVariable Integer detailId, @RequestBody ViolationDetailDTO dto) {
+        return violationService.updateViolationDetail(detailId, dto);
     }
 
     @DeleteMapping("/details/{detailId}")

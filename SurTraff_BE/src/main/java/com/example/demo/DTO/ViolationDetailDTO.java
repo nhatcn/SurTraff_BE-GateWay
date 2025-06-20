@@ -1,5 +1,7 @@
 package com.example.demo.DTO;
 
+import java.time.LocalDateTime;
+
 public class ViolationDetailDTO {
     private Integer id;
     private Integer violationId;
@@ -60,8 +62,8 @@ public class ViolationDetailDTO {
         this.location = location;
     }
 
-    public String getViolationTime() {
-        return violationTime;
+    public LocalDateTime getViolationTime() {
+        return LocalDateTime.parse(violationTime);
     }
 
     public void setViolationTime(String violationTime) {
