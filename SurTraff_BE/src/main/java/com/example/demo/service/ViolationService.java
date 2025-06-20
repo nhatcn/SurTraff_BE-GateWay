@@ -132,7 +132,7 @@ public class ViolationService {
 
     // Cập nhật chi tiết vi phạm
     public ViolationDetail updateViolationDetail(Integer detailId, ViolationDetail updatedDetail) {
-        ViolationDetail existingDetail = violationDetailRepository.findById(detailId.longValue())
+        ViolationDetail existingDetail = violationDetailRepository.findById(detailId)
                 .orElseThrow(() -> new EntityNotFoundException("Chi tiết vi phạm không tồn tại với ID: " + detailId));
 
         if (updatedDetail.getViolationType() != null && updatedDetail.getViolationType().getId() != null) {
@@ -163,10 +163,10 @@ public class ViolationService {
 
     // Xóa chi tiết vi phạm
     public void deleteViolationDetail(Integer detailId) {
-        if (!violationDetailRepository.existsById(detailId.longValue())) {
+        if (!violationDetailRepository.existsById(detailId)) {
             throw new EntityNotFoundException("Chi tiết vi phạm không tồn tại với ID: " + detailId);
         }
-        violationDetailRepository.deleteById(detailId.longValue());
+        violationDetailRepository.deleteById(detailId);
     }
 
     // Lấy tất cả loại vi phạm
