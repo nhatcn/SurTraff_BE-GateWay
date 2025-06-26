@@ -174,4 +174,4 @@ public class AccidentService {
         this.accidentRepository = accidentRepository;
     }
 
-}
+} 
