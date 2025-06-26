@@ -5,29 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0c3e8f91-45b4-4390-a77b-b2219276b448" name="Default Changelist" comment="Merge branch 'main' of https://github.com/nhatcn/SurTraff_BE-GateWay into NhatNM&#10;&#10;# Conflicts:&#10;#&#9;.idea/dataSources.local.xml&#10;#&#9;SurTraff_BE/src/main/java/com/example/demo/repository/ViolationRepository.java">
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/NotificationsDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/TrafficDensityDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/ViolationDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/NotificationsController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/TrafficDensityController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Notifications.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/NotificationsRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/NotificationsService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cfb99ce0-d005-4df4-b22c-12a8eb12df1c.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cfb99ce0-d005-4df4-b22c-12a8eb12df1c.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/AccidentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/AccidentDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/AccidentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/AccidentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ViolationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ViolationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Accident.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Accident.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Violation.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Violation.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/AccidentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/AccidentRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ViolationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ViolationRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/AccidentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/AccidentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/TrafficDensityService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/TrafficDensityService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/ViolationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/ViolationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +39,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../CodeNewBE/SurTraff_BE-GateWay" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -130,7 +108,7 @@
       <workItem from="1750670915712" duration="5966000" />
       <workItem from="1750839275964" duration="6726000" />
       <workItem from="1750868886295" duration="673000" />
-      <workItem from="1750926194092" duration="2210000" />
+      <workItem from="1750926194092" duration="2990000" />
     </task>
     <servers />
   </component>
