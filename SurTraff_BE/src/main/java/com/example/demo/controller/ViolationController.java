@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.DTO.ViolationDTO;
 import com.example.demo.DTO.ViolationDetailDTO;
 import com.example.demo.DTO.ViolationsDTO;
 import com.example.demo.model.VehicleType;
@@ -81,4 +82,10 @@ public class ViolationController {
     public void deleteViolationDetail(@PathVariable Integer detailId) {
         violationService.deleteViolationDetail(detailId);
     }
+
+    @GetMapping("/licenseplate")
+    public List<ViolationDTO> getAllViolationsLicensePlate() {
+        return violationService.getLicensePlate();
+    }
+
 }

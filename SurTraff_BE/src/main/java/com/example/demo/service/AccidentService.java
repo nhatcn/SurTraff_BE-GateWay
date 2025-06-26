@@ -18,13 +18,6 @@ import java.time.format.DateTimeFormatter;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.io.File;
-import org.springframework.core.io.InputStreamSource;
-import org.springframework.core.io.ByteArrayResource;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.io.ByteArrayOutputStream;
 
 @Service
 public class AccidentService {
@@ -87,59 +80,28 @@ public class AccidentService {
         String fullName = accident.getVehicle().getUser().getFullName();
         String licensePlate = accident.getVehicle().getLicensePlate();
         String location = accident.getLocation();
-        String subject = "Thông báo: Tai nạn của bạn đã được ghi nhận";
 
-        String cid = "accidentImage001";
+        String subject = "Thông báo: Tai nạn của bạn đã được ghi nhận";
         String content = String.format(
-                "Kính gửi %s,<br><br>" +
-                        "Chúng tôi đã ghi nhận một tai nạn của bạn với thông tin sau:<br>" +
-                        "- Mã tai nạn: %d<br>" +
-                        "- Biển số xe: %s<br>" +
-                        "- Vị trí: %s<br>" +
-                        "Trạng thái: <b>Đã phê duyệt</b>.<br>" +
-                        "Hình ảnh tai nạn:<br>" +
-                        "<img src='cid:%s' width='500'/><br>" +
-                        "Vui lòng liên hệ nếu cần thêm thông tin.<br><br>" +
-                        "Trân trọng,<br>" +
+                "Kính gửi %s,\n\n" +
+                        "Chúng tôi đã ghi nhận một tai nạn của bạn với thông tin sau:\n" +
+                        "- Mã tai nạn: %d\n" +
+                        "- Biển số xe: %s\n" +
+                        "- Vị trí: %s\n" +
+                        "Trạng thái: Đã phê duyệt.\n" +
+                        "Vui lòng liên hệ nếu cần thêm thông tin.\n\n" +
+                        "Trân trọng,\n" +
                         "Hệ thống quản lý tai nạn",
-                fullName, accident.getId(), licensePlate, location, cid
+                fullName, accident.getId(), licensePlate, location
         );
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-
         helper.setTo(userEmail);
         helper.setSubject(subject);
-        helper.setText(content, true); // true = HTML content
-
-        String imageUrl = accident.getImage_url();
-        if (imageUrl != null && !imageUrl.isEmpty()) {
-            try {
-                // Tải ảnh từ URL
-                URL url = new URL(imageUrl);
-                URLConnection connection = url.openConnection();
-                try (InputStream inputStream = connection.getInputStream()) {
-                    // Đọc InputStream thành byte[]
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[8192];
-                    int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        baos.write(buffer, 0, bytesRead);
-                    }
-                    byte[] imageBytes = baos.toByteArray();
-
-                    InputStreamSource imageSource = new ByteArrayResource(imageBytes);
-                    // Thêm ảnh inline với content-id
-                    helper.addInline(cid, imageSource, connection.getContentType());
-                }
-            } catch (Exception e) {
-                logger.error("Lỗi tải ảnh từ URL để gửi mail: " + imageUrl, e);
-            }
-        }
-
+        helper.setText(content);
         mailSender.send(mimeMessage);
     }
-
 
     public AccidentDTO convertToDTO(Accident accident) {
         if (accident == null) return null;
@@ -179,7 +141,6 @@ public class AccidentService {
                         : null
         );
 
-
         dto.setName(accident.getVehicle() != null ? accident.getVehicle().getName() : null);
 
         dto.setDescription(accident.getDescription());
@@ -192,6 +153,8 @@ public class AccidentService {
 
         dto.setStatus(accident.getStatus());
 
+        dto.setLatitude(accident.getCamera() != null ? accident.getCamera().getLatitude() : null);
+        dto.setLongitude(accident.getCamera() != null ? accident.getCamera().getLongitude() : null);
 
         dto.setAccident_time(accident.getAccident_time() != null
                 ? java.util.Date.from(accident.getAccident_time().atZone(java.time.ZoneId.systemDefault()).toInstant())
@@ -203,6 +166,9 @@ public class AccidentService {
 
         return dto;
     }
+
+
+
 
     public AccidentService(AccidentRepository accidentRepository) {
         this.accidentRepository = accidentRepository;
