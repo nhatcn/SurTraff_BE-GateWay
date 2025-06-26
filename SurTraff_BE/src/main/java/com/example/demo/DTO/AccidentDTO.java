@@ -5,6 +5,8 @@ import java.util.Date;
 public class AccidentDTO {
     private Long id;
     private Long camera_id;
+    private Double latitude;
+    private Double longitude;
     private Long vehicle_id;
     private Long user_id;
     private String user_email;
@@ -22,9 +24,11 @@ public class AccidentDTO {
     public AccidentDTO() {
     }
 
-    public AccidentDTO(Long id, Long camera_id, Long vehicle_id, Long user_id, String user_email, String user_fullName, String licensePlate, String name, String description, String image_url, String video_url, String location, String status, Date accident_time, Date created_at) {
+    public AccidentDTO(Long id, Long camera_id, Double latitude, Double longitude, Long vehicle_id, Long user_id, String user_email, String user_fullName, String licensePlate, String name, String description, String image_url, String video_url, String location, String status, Date accident_time, Date created_at) {
         this.id = id;
         this.camera_id = camera_id;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.vehicle_id = vehicle_id;
         this.user_id = user_id;
         this.user_email = user_email;
@@ -38,6 +42,22 @@ public class AccidentDTO {
         this.status = status;
         this.accident_time = accident_time;
         this.created_at = created_at;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 
     public String getLicensePlate() {
