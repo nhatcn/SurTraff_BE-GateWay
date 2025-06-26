@@ -5,13 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0c3e8f91-45b4-4390-a77b-b2219276b448" name="Default Changelist" comment="Merge branch 'main' of https://github.com/nhatcn/SurTraff_BE-GateWay into NhatNM&#10;&#10;# Conflicts:&#10;#&#9;.idea/dataSources.local.xml&#10;#&#9;SurTraff_BE/src/main/java/com/example/demo/repository/ViolationRepository.java">
-      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/AccidentDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/NotificationsDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/TrafficDensityDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/ViolationDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/NotificationsController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/TrafficDensityController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Notifications.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/NotificationsRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/NotificationsService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cfb99ce0-d005-4df4-b22c-12a8eb12df1c.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cfb99ce0-d005-4df4-b22c-12a8eb12df1c.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/AccidentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/DTO/AccidentDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/AccidentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/AccidentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ViolationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/controller/ViolationController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Accident.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Accident.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Violation.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/model/Violation.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/AccidentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/AccidentRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ViolationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/repository/ViolationRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/AccidentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/AccidentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/TrafficDensityService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/TrafficDensityService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/ViolationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/java/com/example/demo/service/ViolationService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SurTraff_BE/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/SurTraff_BE/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -22,6 +37,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -45,20 +61,15 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Code_DOAN/backend/backend" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
-  <component name="RunManager" selected="Spring Boot.DemoApplication">
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.example.demo.controller" />
+      <recent name="com.example.demo.DTO" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Spring Boot.DemoApplication (1)">
     <configuration name="DemoApplication (1)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <module name="demo" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.demo.DemoApplication" />
@@ -97,7 +108,29 @@
       <workItem from="1748191422167" duration="5128000" />
       <workItem from="1748226092066" duration="7456000" />
       <workItem from="1749112510800" duration="3496000" />
-      <workItem from="1749143931843" duration="454000" />
+      <workItem from="1749143931843" duration="1057000" />
+      <workItem from="1749153160896" duration="3592000" />
+      <workItem from="1749312631508" duration="637000" />
+      <workItem from="1749465818795" duration="6212000" />
+      <workItem from="1749515205624" duration="1525000" />
+      <workItem from="1749523903433" duration="4996000" />
+      <workItem from="1749633651635" duration="7628000" />
+      <workItem from="1749663534938" duration="3947000" />
+      <workItem from="1749727652103" duration="264000" />
+      <workItem from="1749836181609" duration="1332000" />
+      <workItem from="1749873248607" duration="1419000" />
+      <workItem from="1750075266021" duration="597000" />
+      <workItem from="1750287869179" duration="1389000" />
+      <workItem from="1750400776780" duration="2167000" />
+      <workItem from="1750421850751" duration="1607000" />
+      <workItem from="1750431236622" duration="2082000" />
+      <workItem from="1750452708359" duration="164000" />
+      <workItem from="1750452988580" duration="847000" />
+      <workItem from="1750474888540" duration="3777000" />
+      <workItem from="1750670915712" duration="5966000" />
+      <workItem from="1750839275964" duration="6726000" />
+      <workItem from="1750868886295" duration="673000" />
+      <workItem from="1750926194092" duration="2210000" />
     </task>
     <servers />
   </component>
