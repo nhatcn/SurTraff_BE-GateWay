@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.DTO.VehicleTrackingDTO;
-import com.example.demo.service.VehicleTrackingService;
+import com.example.demo.DTO.VehicleStatisticsDTO;
+import com.example.demo.service.VehicleStatisticsService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,12 +10,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/vehicle-tracking")
 @AllArgsConstructor
-public class VehicleTrackingController {
+public class VehicleStatisticsController {
 
-    private final VehicleTrackingService vehicleTrackingService;
+    private final VehicleStatisticsService vehicleTrackingService;
 
     @GetMapping("/all")
-    public List<VehicleTrackingDTO> getAllVehicleTracking() {
+    public List<VehicleStatisticsDTO> getAllVehicleTracking() {
         return vehicleTrackingService.getAllVehicleTracking();
     }
 }

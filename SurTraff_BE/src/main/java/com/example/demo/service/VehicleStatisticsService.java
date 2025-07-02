@@ -1,8 +1,8 @@
 package com.example.demo.service;
 
-import com.example.demo.DTO.VehicleTrackingDTO;
-import com.example.demo.model.VehicleTracking;
-import com.example.demo.repository.VehicleTrackingRepository;
+import com.example.demo.DTO.VehicleStatisticsDTO;
+import com.example.demo.model.VehicleStatistics;
+import com.example.demo.repository.VehicleStatisticsRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,19 +11,19 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class VehicleTrackingService {
+public class VehicleStatisticsService {
 
-    private final VehicleTrackingRepository vehicleTrackingRepository;
+    private final VehicleStatisticsRepository vehicleTrackingRepository;
 
-    public List<VehicleTrackingDTO> getAllVehicleTracking() {
+    public List<VehicleStatisticsDTO> getAllVehicleTracking() {
         return vehicleTrackingRepository.findAll()
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
-    private VehicleTrackingDTO toDTO(VehicleTracking entity) {
-        VehicleTrackingDTO dto = new VehicleTrackingDTO();
+    private VehicleStatisticsDTO toDTO(VehicleStatistics entity) {
+        VehicleStatisticsDTO dto = new VehicleStatisticsDTO();
         dto.setCameraId(entity.getCamera() != null && entity.getCamera().getId() != null
                 ? entity.getCamera().getId().intValue()
                 : null);
