@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VehicleTracking {
+public class VehicleStatistics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VehicleTrackingDTO {
+public class VehicleStatisticsDTO {
     private Integer cameraId;
     private String licensePlate;
     private Integer vehicleTypeId;
