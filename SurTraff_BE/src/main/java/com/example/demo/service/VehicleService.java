@@ -104,4 +104,11 @@ public class VehicleService {
         }
         return vehicle;
     }
+
+    public List<VehicleDTO> getVehiclesByUserId(Long userId) {
+        return vehicleRepository.findByUserId(userId)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
 }
