@@ -24,7 +24,7 @@ public class ViolationController {
     }
 
     @GetMapping("/{id}")
-    public ViolationsDTO getViolationById(@PathVariable Integer id) {
+    public ViolationsDTO getViolationById(@PathVariable Long id) {
         return violationService.getViolationById(id);
     }
 
@@ -34,17 +34,22 @@ public class ViolationController {
     }
 
     @PostMapping
-    public ViolationsDTO createViolation(@RequestBody ViolationsDTO dto) {
+    public ViolationsDTO addViolation(@RequestBody ViolationsDTO dto) {
         return violationService.createViolation(dto);
     }
 
+    @GetMapping("/user/{userId}")
+    public List<ViolationsDTO> getAllViolationsByUserId(@PathVariable Long userId) {
+        return violationService.getAllViolationsByUserId(userId);
+    }
+
     @PutMapping("/{id}")
-    public ViolationsDTO updateViolation(@PathVariable Integer id, @RequestBody ViolationsDTO dto) {
+    public ViolationsDTO updateViolation(@PathVariable Long id, @RequestBody ViolationsDTO dto) {
         return violationService.updateViolation(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteViolation(@PathVariable Integer id) {
+    public void deleteViolation(@PathVariable Long id) {
         violationService.deleteViolation(id);
     }
 
@@ -64,28 +69,27 @@ public class ViolationController {
     }
 
     @PutMapping("/violation-types/{id}")
-    public ViolationType updateViolationType(@PathVariable Integer id, @RequestBody ViolationType violationType) {
+    public ViolationType updateViolationType(@PathVariable Long id, @RequestBody ViolationType violationType) {
         return violationService.updateViolationType(id, violationType);
     }
 
     @PostMapping("/{id}/details")
-    public ViolationDetailDTO addViolationDetail(@PathVariable Integer id, @RequestBody ViolationDetailDTO dto) {
+    public ViolationDetailDTO addViolationDetail(@PathVariable Long id, @RequestBody ViolationDetailDTO dto) {
         return violationService.addViolationDetail(id, dto);
     }
 
     @PutMapping("/details/{detailId}")
-    public ViolationDetailDTO updateViolationDetail(@PathVariable Integer detailId, @RequestBody ViolationDetailDTO dto) {
+    public ViolationDetailDTO updateViolationDetail(@PathVariable Long detailId, @RequestBody ViolationDetailDTO dto) {
         return violationService.updateViolationDetail(detailId, dto);
     }
 
     @DeleteMapping("/details/{detailId}")
-    public void deleteViolationDetail(@PathVariable Integer detailId) {
+    public void deleteViolationDetail(@PathVariable Long detailId) {
         violationService.deleteViolationDetail(detailId);
     }
 
     @GetMapping("/licenseplate")
-    public List<ViolationDTO> getAllViolationsLicensePlate() {
-        return violationService.getLicensePlate();
+    public List<ViolationDTO> getViolationsByLicensePlate(@RequestParam(required = false) String licensePlate) {
+        return violationService.getViolationsByLicensePlate(licensePlate);
     }
-
 }
