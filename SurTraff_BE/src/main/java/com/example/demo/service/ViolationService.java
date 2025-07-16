@@ -87,7 +87,7 @@ public class ViolationService {
     public List<ViolationsDTO> getAllViolationsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Người dùng không tồn tại với ID: " + userId));
-        List<Vehicle> vehicles = vehicleRepository.findByUser(user);
+        List<Vehicle> vehicles = vehicleRepository.findByUserId(user.getId());
         List<Violation> violations = violationRepository.findAll().stream()
                 .filter(v -> v.getVehicle() != null && vehicles.contains(v.getVehicle()))
                 .collect(Collectors.toList());
