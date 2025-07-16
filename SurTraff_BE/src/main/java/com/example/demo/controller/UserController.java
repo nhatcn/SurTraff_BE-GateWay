@@ -81,7 +81,7 @@ public class UserController {
 
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                 new NetHttpTransport(), new JacksonFactory())
-                .setAudience(Collections.singletonList("904077274507-k4034svo64dbgoitut47cqv7461fq5qs.apps.googleusercontent.com"))
+                .setAudience(Collections.singletonList("359834252791-bdrg125j62411mp1u8suqqnl6v79339a.apps.googleusercontent.com"))
                 .build();
 
         try {

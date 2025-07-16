@@ -54,5 +54,4 @@ public class AccidentController {
         accidentService.deleteAccident(id);
         return ResponseEntity.noContent().build();
     }
-
 }
