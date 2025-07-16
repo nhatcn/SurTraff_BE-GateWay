@@ -170,6 +170,9 @@ public class AccidentService {
 
 
 
+
+
+
     public AccidentService(AccidentRepository accidentRepository) {
         this.accidentRepository = accidentRepository;
     }
