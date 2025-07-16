@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ViolationsDTO {
-    private Integer id;
+    private Long id;
     private Long cameraId;
     private Long vehicleTypeId;
     private Long vehicleId;

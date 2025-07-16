@@ -30,15 +30,15 @@ public class ViolationDetailService {
     private ViolationDetailDTO convertToDTO(ViolationDetail entity) {
         ViolationDetailDTO dto = new ViolationDetailDTO();
         dto.setId(entity.getId());
-        dto.setViolationId(entity.getViolation() != null ? entity.getViolation().getId() : null);
-        dto.setViolationTypeId(entity.getViolationType() != null ? entity.getViolationType().getId() : null);
+        dto.setViolationId(entity.getViolation() != null ? entity.getViolation().getId().longValue() : null);
+        dto.setViolationTypeId(entity.getViolationType() != null ? entity.getViolationType().getId().longValue() : null);
         dto.setImageUrl(entity.getImageUrl());
         dto.setVideoUrl(entity.getVideoUrl());
         dto.setLocation(entity.getLocation());
-        dto.setViolationTime(entity.getViolationTime() != null ? entity.getViolationTime().toString() : null);
+        dto.setViolationTime(entity.getViolationTime() != null ? entity.getViolationTime() : null);
         dto.setSpeed(entity.getSpeed());
         dto.setAdditionalNotes(entity.getAdditionalNotes());
-        dto.setCreatedAt(entity.getCreatedAt() != null ? entity.getCreatedAt().toString() : null);
+        dto.setCreatedAt(entity.getCreatedAt() != null ? entity.getCreatedAt() : null);
         return dto;
     }
 }

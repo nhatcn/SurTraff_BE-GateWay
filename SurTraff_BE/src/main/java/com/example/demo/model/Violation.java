@@ -16,15 +16,15 @@ import java.util.List;
 public class Violation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "camera_id")
     private Camera camera;
 
     @ManyToOne
-    @JoinColumn(name = "violation_type_id")
-    private ViolationType violationType;
+    @JoinColumn(name = "vehicle_type_id")
+    private VehicleType vehicleType;
 
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
@@ -32,6 +32,6 @@ public class Violation {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "violation", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "violation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ViolationDetail> violationDetails;
 }
