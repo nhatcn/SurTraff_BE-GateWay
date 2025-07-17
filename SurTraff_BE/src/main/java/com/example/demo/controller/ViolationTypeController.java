@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("api/violation-type")
 public class ViolationTypeController {
+
     @Autowired
     ViolationTypesService violationTypesService;
 
