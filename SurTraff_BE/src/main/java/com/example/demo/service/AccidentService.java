@@ -155,4 +155,36 @@ public class AccidentService {
 
         return dto;
     }
+
+    public List<AccidentDTO> getAccidentsByUserId(Long userId) {
+        List<Accident> accidents = accidentRepository.findByVehicle_User_Id(userId);
+        return accidents.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public Accident requestAccident(Long id) {
+        Accident accident = accidentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Accident not found with ID: " + id));
+
+        accident.setStatus("Requested");
+        return accidentRepository.save(accident);
+    }
+    
+    public Accident processAccident(Long id) {
+        Accident accident = accidentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Accident not found with ID: " + id));
+
+        accident.setStatus("Processed");
+        return accidentRepository.save(accident);
+    }
+    
+    public Accident rejectAccident(Long id) {
+        Accident accident = accidentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Accident not found with ID: " + id));
+
+        accident.setStatus("Rejected");
+        return accidentRepository.save(accident);
+    }
+
 }
