@@ -1,5 +1,6 @@
 package com.example.demo.DTO;
 
+import com.example.demo.model.VehicleType;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,8 +13,9 @@ import java.util.List;
 public class ViolationsDTO {
     private Long id;
     private Long cameraId;
-    private Long vehicleTypeId;
+    private VehicleType vehicleType;
     private Long vehicleId;
     private LocalDateTime createdAt;
     private List<ViolationDetailDTO> violationDetails;
+    private String status;
 }
