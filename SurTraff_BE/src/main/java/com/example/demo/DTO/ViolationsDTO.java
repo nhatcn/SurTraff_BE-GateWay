@@ -12,9 +12,9 @@ import java.util.List;
 @Builder
 public class ViolationsDTO {
     private Long id;
-    private Long cameraId;
+    private CameraDTO camera;
     private VehicleType vehicleType;
-    private Long vehicleId;
+    private VehicleDTO vehicle;
     private LocalDateTime createdAt;
     private List<ViolationDetailDTO> violationDetails;
     private String status;
