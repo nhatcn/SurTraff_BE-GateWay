@@ -22,7 +22,7 @@ public class ViolationDetailService {
     }
 
     public ViolationDetailDTO getViolationById(Integer id) {
-        return repository.findById(id)
+        return repository.findById(id.longValue())
                 .map(this::convertToDTO)
                 .orElse(null);
     }

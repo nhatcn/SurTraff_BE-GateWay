@@ -1,21 +1,26 @@
 package com.example.demo.service;
 
-import com.example.demo.DTO.ViolationDTO;
 import com.example.demo.DTO.ViolationDetailDTO;
 import com.example.demo.DTO.ViolationsDTO;
 import com.example.demo.model.*;
 import com.example.demo.repository.*;
 import jakarta.persistence.EntityNotFoundException;
+import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ViolationService {
 
     private final ViolationRepository violationRepository;
@@ -25,16 +30,16 @@ public class ViolationService {
     private final VehicleRepository vehicleRepository;
     private final ViolationDetailRepository violationDetailRepository;
     private final UserRepository userRepository;
+    private final CloudinaryService cloudinaryService; // Thêm CloudinaryService
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-
+    @Autowired
     public ViolationService(ViolationRepository violationRepository, CameraRepository cameraRepository,
                             ViolationTypeRepository violationTypeRepository, VehicleTypeRepository vehicleTypeRepository,
                             VehicleRepository vehicleRepository, ViolationDetailRepository violationDetailRepository,
-                            UserRepository userRepository) {
+                            UserRepository userRepository, CloudinaryService cloudinaryService) {
         this.violationRepository = violationRepository;
         this.cameraRepository = cameraRepository;
         this.violationTypeRepository = violationTypeRepository;
@@ -42,48 +47,75 @@ public class ViolationService {
         this.vehicleRepository = vehicleRepository;
         this.violationDetailRepository = violationDetailRepository;
         this.userRepository = userRepository;
+        this.cloudinaryService = cloudinaryService; // Khởi tạo CloudinaryService
     }
 
+    @Transactional(readOnly = true)
     public List<ViolationsDTO> getAllViolations() {
         return violationRepository.findAll().stream()
-                .map(v -> {
-                    ViolationsDTO dto = new ViolationsDTO();
-                    dto.setId(v.getId());
-                    dto.setCameraId(v.getCamera() != null ? v.getCamera().getId() : null);
-                    dto.setVehicleTypeId(v.getVehicleType() != null ? v.getVehicleType().getId() : null);
-                    dto.setVehicleId(v.getVehicle() != null ? v.getVehicle().getId() : null);
-                    dto.setCreatedAt(v.getCreatedAt());
-                    dto.setViolationDetails(null);
-                    return dto;
-                })
+                .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public ViolationsDTO getViolationById(Long id) {
-        Optional<Violation> violation = violationRepository.findById(id);
-        return violation.map(this::toDTO).orElseThrow(() -> new EntityNotFoundException("Vi phạm không tồn tại với ID: " + id));
+        Violation violation = violationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Vi phạm không tồn tại với ID: " + id));
+        Hibernate.initialize(violation.getViolationDetails());
+        return toDTO(violation);
     }
 
+    @Transactional(readOnly = true)
     public List<ViolationsDTO> getViolationHistory(String licensePlate) {
+        if (licensePlate == null || licensePlate.trim().isEmpty()) {
+            throw new IllegalArgumentException("Biển số xe không được để trống");
+        }
         return violationRepository.findByVehicleLicensePlateOrderByCreatedAtDesc(licensePlate)
-                .stream().map(this::toDTO).collect(Collectors.toList());
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     public ViolationsDTO createViolation(ViolationsDTO dto) {
-        Violation violation = toEntity(dto);
-        // Lấy user từ vehicle nếu có
+        if (dto == null) {
+            throw new IllegalArgumentException("Dữ liệu vi phạm không được null");
+        }
+        Violation violation = new Violation();
+        violation.setId(dto.getId());
+        violation.setCreatedAt(dto.getCreatedAt() != null ? dto.getCreatedAt() : LocalDateTime.now());
+        violation.setStatus(dto.getStatus()); // Gán status từ DTO
+
+        if (dto.getCameraId() != null) {
+            Camera camera = cameraRepository.findById(dto.getCameraId())
+                    .orElseThrow(() -> new EntityNotFoundException("Camera không tồn tại với ID: " + dto.getCameraId()));
+            violation.setCamera(camera);
+        }
         if (dto.getVehicleId() != null) {
             Vehicle vehicle = vehicleRepository.findById(dto.getVehicleId())
                     .orElseThrow(() -> new EntityNotFoundException("Xe không tồn tại với ID: " + dto.getVehicleId()));
             violation.setVehicle(vehicle);
-            if (vehicle.getUser() != null) {
-                violation.getVehicle().setUser(vehicle.getUser()); // Đảm bảo user được liên kết
-            }
         }
-        violation = violationRepository.save(violation);
-        return toDTO(violation);
+        if (dto.getVehicleType() != null) {
+            VehicleType vehicleType = vehicleTypeRepository.findById(dto.getVehicleType().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Loại xe không tồn tại với ID: " + dto.getVehicleType().getId()));
+            violation.setVehicleType(vehicleType);
+        }
+
+        Violation savedViolation = violationRepository.save(violation);
+
+        if (dto.getViolationDetails() != null && !dto.getViolationDetails().isEmpty()) {
+            List<ViolationDetail> details = dto.getViolationDetails().stream()
+                    .map(this::toDetailEntity)
+                    .peek(detail -> detail.setViolation(savedViolation))
+                    .collect(Collectors.toList());
+            violationDetailRepository.saveAll(details);
+            savedViolation.setViolationDetails(details);
+        }
+
+        return toDTO(savedViolation);
     }
 
+    @Transactional(readOnly = true)
     public List<ViolationsDTO> getAllViolationsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Người dùng không tồn tại với ID: " + userId));
@@ -91,34 +123,50 @@ public class ViolationService {
         List<Violation> violations = violationRepository.findAll().stream()
                 .filter(v -> v.getVehicle() != null && vehicles.contains(v.getVehicle()))
                 .collect(Collectors.toList());
-        return violations.stream().map(this::toDTO).collect(Collectors.toList());
+        return violations.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     public ViolationsDTO updateViolation(Long id, ViolationsDTO dto) {
-        Optional<Violation> optionalViolation = violationRepository.findById(id);
-        if (optionalViolation.isPresent()) {
-            Violation violation = optionalViolation.get();
-            violation.setCamera(dto.getCameraId() != null ?
-                    cameraRepository.findById(dto.getCameraId())
-                            .orElseThrow(() -> new EntityNotFoundException("Camera không tồn tại với ID: " + dto.getCameraId()))
-                    : null);
-            violation.setVehicleType(dto.getVehicleTypeId() != null ?
-                    vehicleTypeRepository.findById(dto.getVehicleTypeId())
-                            .orElseThrow(() -> new EntityNotFoundException("Loại xe không tồn tại với ID: " + dto.getVehicleTypeId()))
-                    : null);
-            if (dto.getVehicleId() != null) {
-                Vehicle vehicle = vehicleRepository.findById(dto.getVehicleId())
-                        .orElseThrow(() -> new EntityNotFoundException("Xe không tồn tại với ID: " + dto.getVehicleId()));
-                violation.setVehicle(vehicle);
-                if (vehicle.getUser() != null) {
-                    vehicle.setUser(vehicle.getUser()); // Đảm bảo user được liên kết
-                }
-            }
-            violation.setCreatedAt(dto.getCreatedAt());
-            violation = violationRepository.save(violation);
-            return toDTO(violation);
+        Violation violation = violationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Vi phạm không tồn tại với ID: " + id));
+
+        if (dto.getCameraId() != null) {
+            Camera camera = cameraRepository.findById(dto.getCameraId())
+                    .orElseThrow(() -> new EntityNotFoundException("Camera không tồn tại với ID: " + dto.getCameraId()));
+            violation.setCamera(camera);
         }
-        throw new EntityNotFoundException("Vi phạm không tồn tại với ID: " + id);
+        if (dto.getVehicleType() != null) {
+            VehicleType vehicleType = vehicleTypeRepository.findById(dto.getVehicleType().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Loại xe không tồn tại với ID: " + dto.getVehicleType().getId()));
+            violation.setVehicleType(vehicleType);
+        }
+        if (dto.getVehicleId() != null) {
+            Vehicle vehicle = vehicleRepository.findById(dto.getVehicleId())
+                    .orElseThrow(() -> new EntityNotFoundException("Xe không tồn tại với ID: " + dto.getVehicleId()));
+            violation.setVehicle(vehicle);
+        }
+        if (dto.getCreatedAt() != null) {
+            violation.setCreatedAt(dto.getCreatedAt());
+        }
+        if (dto.getStatus() != null) { // Cập nhật status nếu có
+            violation.setStatus(dto.getStatus());
+        }
+
+        Violation savedViolation = violationRepository.save(violation);
+
+        if (dto.getViolationDetails() != null && !dto.getViolationDetails().isEmpty()) {
+            violationDetailRepository.deleteByViolationId(savedViolation.getId());
+            List<ViolationDetail> details = dto.getViolationDetails().stream()
+                    .map(this::toDetailEntity)
+                    .peek(detail -> detail.setViolation(savedViolation))
+                    .collect(Collectors.toList());
+            violationDetailRepository.saveAll(details);
+            savedViolation.setViolationDetails(details);
+        }
+
+        return toDTO(savedViolation);
     }
 
     public void deleteViolation(Long id) {
@@ -128,57 +176,99 @@ public class ViolationService {
         violationRepository.deleteById(id);
     }
 
-    public ViolationDetailDTO addViolationDetail(Long violationId, ViolationDetailDTO dto) {
+    public ViolationDetailDTO addViolationDetail(Long violationId, ViolationDetailDTO dto, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
+        if (dto == null) {
+            throw new IllegalArgumentException("Dữ liệu chi tiết vi phạm không được null");
+        }
         Violation violation = violationRepository.findById(violationId)
                 .orElseThrow(() -> new EntityNotFoundException("Vi phạm không tồn tại với ID: " + violationId));
+
+        // Upload image nếu có
+        String imageUrl = null;
+        if (imageFile != null && !imageFile.isEmpty()) {
+            imageUrl = cloudinaryService.uploadImage(imageFile);
+        }
+
+        // Upload video nếu có
+        String videoUrl = null;
+        if (videoFile != null && !videoFile.isEmpty()) {
+            videoUrl = cloudinaryService.uploadVideo(videoFile);
+        }
+
         ViolationDetail detail = toDetailEntity(dto);
         detail.setViolation(violation);
-        detail = violationDetailRepository.save(detail);
-        return toDetailDTO(detail);
+        detail.setImageUrl(imageUrl != null ? imageUrl : dto.getImageUrl());
+        detail.setVideoUrl(videoUrl != null ? videoUrl : dto.getVideoUrl());
+        ViolationDetail savedDetail = violationDetailRepository.save(detail);
+        return toDetailDTO(savedDetail);
     }
 
-    public ViolationDetailDTO updateViolationDetail(Long detailId, ViolationDetailDTO dto) {
-        ViolationDetail existingDetail = violationDetailRepository.findById(detailId.intValue())
+    public ViolationDetailDTO updateViolationDetail(Long detailId, ViolationDetailDTO dto, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
+        if (dto == null) {
+            throw new IllegalArgumentException("Dữ liệu chi tiết vi phạm không được null");
+        }
+        ViolationDetail existingDetail = violationDetailRepository.findById(detailId)
                 .orElseThrow(() -> new EntityNotFoundException("Chi tiết vi phạm không tồn tại với ID: " + detailId));
 
-        existingDetail.setViolationType(dto.getViolationTypeId() != null ?
-                violationTypeRepository.findById(dto.getViolationTypeId())
-                        .orElseThrow(() -> new EntityNotFoundException("Loại vi phạm không tồn tại với ID: " + dto.getViolationTypeId()))
-                : null);
-        existingDetail.setImageUrl(dto.getImageUrl());
-        existingDetail.setVideoUrl(dto.getVideoUrl());
-        existingDetail.setLocation(dto.getLocation());
-        existingDetail.setViolationTime(dto.getViolationTime());
-        existingDetail.setSpeed(dto.getSpeed());
-        existingDetail.setAdditionalNotes(dto.getAdditionalNotes());
+        // Upload image nếu có
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String imageUrl = cloudinaryService.uploadImage(imageFile);
+            existingDetail.setImageUrl(imageUrl);
+        } else if (dto.getImageUrl() != null) {
+            existingDetail.setImageUrl(dto.getImageUrl());
+        }
 
-        existingDetail = violationDetailRepository.save(existingDetail);
-        return toDetailDTO(existingDetail);
+        // Upload video nếu có
+        if (videoFile != null && !videoFile.isEmpty()) {
+            String videoUrl = cloudinaryService.uploadVideo(videoFile);
+            existingDetail.setVideoUrl(videoUrl);
+        } else if (dto.getVideoUrl() != null) {
+            existingDetail.setVideoUrl(dto.getVideoUrl());
+        }
+
+        if (dto.getViolationTypeId() != null) {
+            ViolationType violationType = violationTypeRepository.findById(dto.getViolationTypeId())
+                    .orElseThrow(() -> new EntityNotFoundException("Loại vi phạm không tồn tại với ID: " + dto.getViolationTypeId()));
+            existingDetail.setViolationType(violationType);
+        }
+        if (dto.getLocation() != null) existingDetail.setLocation(dto.getLocation());
+        if (dto.getViolationTime() != null) existingDetail.setViolationTime(dto.getViolationTime());
+        if (dto.getSpeed() != null) existingDetail.setSpeed(dto.getSpeed());
+        if (dto.getAdditionalNotes() != null) existingDetail.setAdditionalNotes(dto.getAdditionalNotes());
+        if (dto.getCreatedAt() != null) existingDetail.setCreatedAt(dto.getCreatedAt());
+
+        ViolationDetail savedDetail = violationDetailRepository.save(existingDetail);
+        return toDetailDTO(savedDetail);
     }
 
     public void deleteViolationDetail(Long detailId) {
-        if (!violationDetailRepository.existsById(detailId.intValue())) {
+        if (!violationDetailRepository.existsById(detailId)) {
             throw new EntityNotFoundException("Chi tiết vi phạm không tồn tại với ID: " + detailId);
         }
-        violationDetailRepository.deleteById(detailId.intValue());
+        violationDetailRepository.deleteById(detailId);
     }
 
+    @Transactional(readOnly = true)
     public List<ViolationType> getAllViolationTypes() {
         return violationTypeRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public List<VehicleType> getAllVehicleTypes() {
         return vehicleTypeRepository.findAll();
     }
 
     public ViolationType createViolationType(ViolationType violationType) {
-        if (violationType.getTypeName() == null || violationType.getTypeName().isEmpty()) {
+        if (violationType == null || violationType.getTypeName() == null || violationType.getTypeName().isEmpty()) {
             throw new IllegalArgumentException("Tên loại vi phạm không được để trống");
         }
         return violationTypeRepository.save(violationType);
     }
 
     public ViolationType updateViolationType(Long id, ViolationType updatedType) {
+        if (updatedType == null) {
+            throw new IllegalArgumentException("Dữ liệu loại vi phạm không được null");
+        }
         ViolationType existingType = violationTypeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Loại vi phạm không tồn tại với ID: " + id));
         if (updatedType.getTypeName() != null && !updatedType.getTypeName().isEmpty()) {
@@ -191,48 +281,37 @@ public class ViolationService {
     }
 
     private ViolationsDTO toDTO(Violation violation) {
+        if (violation == null) return null;
         ViolationsDTO dto = new ViolationsDTO();
         dto.setId(violation.getId());
         dto.setCameraId(violation.getCamera() != null ? violation.getCamera().getId() : null);
-        dto.setVehicleTypeId(violation.getVehicleType() != null ? violation.getVehicleType().getId() : null);
+        dto.setVehicleType(violation.getVehicleType());
         dto.setVehicleId(violation.getVehicle() != null ? violation.getVehicle().getId() : null);
         dto.setCreatedAt(violation.getCreatedAt());
-        dto.setViolationDetails(violation.getViolationDetails() != null ?
-                violation.getViolationDetails().stream().map(this::toDetailDTO).collect(Collectors.toList()) : null);
+        if (Hibernate.isInitialized(violation.getViolationDetails()) && violation.getViolationDetails() != null) {
+            dto.setViolationDetails(violation.getViolationDetails().stream()
+                    .map(this::toDetailDTO)
+                    .collect(Collectors.toList()));
+        }
+        dto.setStatus(violation.getStatus()); // Ánh xạ cột status
         return dto;
     }
 
     private Violation toEntity(ViolationsDTO dto) {
+        if (dto == null) return null;
         Violation violation = new Violation();
         violation.setId(dto.getId());
-        violation.setCamera(dto.getCameraId() != null ?
-                cameraRepository.findById(dto.getCameraId())
-                        .orElseThrow(() -> new EntityNotFoundException("Camera không tồn tại với ID: " + dto.getCameraId()))
-                : null);
-        violation.setVehicleType(dto.getVehicleTypeId() != null ?
-                vehicleTypeRepository.findById(dto.getVehicleTypeId())
-                        .orElseThrow(() -> new EntityNotFoundException("Loại xe không tồn tại với ID: " + dto.getVehicleTypeId()))
-                : null);
-        if (dto.getVehicleId() != null) {
-            Vehicle vehicle = vehicleRepository.findById(dto.getVehicleId())
-                    .orElseThrow(() -> new EntityNotFoundException("Xe không tồn tại với ID: " + dto.getVehicleId()));
-            violation.setVehicle(vehicle);
-        }
-        violation.setCreatedAt(dto.getCreatedAt());
-        if (dto.getViolationDetails() != null) {
-            List<ViolationDetail> details = dto.getViolationDetails().stream()
-                    .map(this::toDetailEntity)
-                    .peek(detail -> detail.setViolation(violation))
-                    .collect(Collectors.toList());
-            violation.setViolationDetails(details);
-        }
+        violation.setCreatedAt(dto.getCreatedAt() != null ? dto.getCreatedAt() : LocalDateTime.now());
+        violation.setStatus(dto.getStatus()); // Ánh xạ status từ DTO
         return violation;
     }
 
     private ViolationDetailDTO toDetailDTO(ViolationDetail detail) {
+        if (detail == null) return null;
         ViolationDetailDTO dto = new ViolationDetailDTO();
         dto.setId(detail.getId());
         dto.setViolationId(detail.getViolation() != null ? detail.getViolation().getId() : null);
+        dto.setViolationType(detail.getViolationType());
         dto.setViolationTypeId(detail.getViolationType() != null ? detail.getViolationType().getId().longValue() : null);
         dto.setImageUrl(detail.getImageUrl());
         dto.setVideoUrl(detail.getVideoUrl());
@@ -245,54 +324,36 @@ public class ViolationService {
     }
 
     private ViolationDetail toDetailEntity(ViolationDetailDTO dto) {
+        if (dto == null) return null;
         ViolationDetail detail = new ViolationDetail();
         detail.setId(dto.getId());
-        detail.setViolationType(dto.getViolationTypeId() != null ?
-                violationTypeRepository.findById(dto.getViolationTypeId())
-                        .orElseThrow(() -> new EntityNotFoundException("Loại vi phạm không tồn tại với ID: " + dto.getViolationTypeId()))
-                : null);
+        if (dto.getViolationTypeId() != null) {
+            ViolationType violationType = violationTypeRepository.findById(dto.getViolationTypeId())
+                    .orElseThrow(() -> new EntityNotFoundException("Loại vi phạm không tồn tại với ID: " + dto.getViolationTypeId()));
+            detail.setViolationType(violationType);
+        }
         detail.setImageUrl(dto.getImageUrl());
         detail.setVideoUrl(dto.getVideoUrl());
         detail.setLocation(dto.getLocation());
-        detail.setViolationTime(dto.getViolationTime() != null ? dto.getViolationTime() : null);
+        detail.setViolationTime(dto.getViolationTime());
         detail.setSpeed(dto.getSpeed());
         detail.setAdditionalNotes(dto.getAdditionalNotes());
-        detail.setCreatedAt(dto.getCreatedAt() != null ? dto.getCreatedAt() : null);
+        detail.setCreatedAt(dto.getCreatedAt() != null ? dto.getCreatedAt() : LocalDateTime.now());
         return detail;
     }
 
-    public List<ViolationDTO> getViolationsByLicensePlate(String licensePlate) {
+    @Transactional(readOnly = true)
+    public List<ViolationsDTO> getViolationsByLicensePlate(String licensePlate) {
+        if (licensePlate == null || licensePlate.trim().isEmpty()) {
+            throw new IllegalArgumentException("Biển số xe không được để trống");
+        }
         Optional<Vehicle> vehicle = vehicleRepository.findByLicensePlate(licensePlate);
         if (vehicle.isEmpty()) {
             throw new EntityNotFoundException("Xe không tồn tại với biển số: " + licensePlate);
         }
-
         List<Violation> violations = violationRepository.findByVehicleLicensePlateOrderByCreatedAtDesc(licensePlate);
         return violations.stream()
-                .map(this::convertToDTO)
+                .map(this::toDTO)
                 .collect(Collectors.toList());
-    }
-
-    public ViolationDTO convertToDTO(Violation violation) {
-        if (violation == null) return null;
-
-        ViolationDTO dto = new ViolationDTO();
-        dto.setId(violation.getId() != null ? violation.getId() : null);
-        dto.setCamera_id(violation.getCamera() != null && violation.getCamera().getId() != null
-                ? violation.getCamera().getId() : null);
-        dto.setVehicle_type_id(violation.getVehicleType() != null && violation.getVehicleType().getId() != null
-                ? violation.getVehicleType().getId() : null);
-        dto.setVehicle_id(violation.getVehicle() != null && violation.getVehicle().getId() != null
-                ? violation.getVehicle().getId() : null);
-        dto.setCreated_at(violation.getCreatedAt());
-
-        if (violation.getVehicle() != null) {
-            dto.setLicensePlate(violation.getVehicle().getLicensePlate());
-        }
-
-        dto.setLocation(violation.getViolationDetails() != null && !violation.getViolationDetails().isEmpty()
-                ? violation.getViolationDetails().get(0).getLocation() : null);
-
-        return dto;
     }
 }

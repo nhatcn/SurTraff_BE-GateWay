@@ -34,4 +34,6 @@ public class Violation {
 
     @OneToMany(mappedBy = "violation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ViolationDetail> violationDetails;
+
+    private String status;
 }
