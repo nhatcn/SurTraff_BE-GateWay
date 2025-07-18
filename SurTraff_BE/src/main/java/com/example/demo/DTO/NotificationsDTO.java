@@ -4,27 +4,27 @@ import java.util.Date;
 
 public class NotificationsDTO {
     private Long id;
-    private Long user_id;
-    private Long vehicle_id;
-    private Long accident_id;
-    private Long violation_id;
+    private Long userId;
+    private Long vehicleId;
+    private Long accidentId;
+    private Long violationId;
     private String message;
-    private String notification_type;
-    private Date created_at;
+    private String notificationType;
+    private Date createdAt;
     private boolean read;
 
     public NotificationsDTO() {
     }
 
-    public NotificationsDTO(Long id, Long user_id, Long vehicle_id, Long accident_id, Long violation_id, String message, String notification_type, Date created_at, boolean read) {
+    public NotificationsDTO(Long id, Long userId, Long vehicleId, Long accidentId, Long violationId, String message, String notificationType, Date createdAt, boolean read) {
         this.id = id;
-        this.user_id = user_id;
-        this.vehicle_id = vehicle_id;
-        this.accident_id = accident_id;
-        this.violation_id = violation_id;
+        this.userId = userId;
+        this.vehicleId = vehicleId;
+        this.accidentId = accidentId;
+        this.violationId = violationId;
         this.message = message;
-        this.notification_type = notification_type;
-        this.created_at = created_at;
+        this.notificationType = notificationType;
+        this.createdAt = createdAt;
         this.read = read;
     }
 
@@ -36,36 +36,36 @@ public class NotificationsDTO {
         this.id = id;
     }
 
-    public Long getUser_id() {
-        return user_id;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser_id(Long user_id) {
-        this.user_id = user_id;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public Long getVehicle_id() {
-        return vehicle_id;
+    public Long getVehicleId() {
+        return vehicleId;
     }
 
-    public void setVehicle_id(Long vehicle_id) {
-        this.vehicle_id = vehicle_id;
+    public void setVehicleId(Long vehicleId) {
+        this.vehicleId = vehicleId;
     }
 
-    public Long getAccident_id() {
-        return accident_id;
+    public Long getAccidentId() {
+        return accidentId;
     }
 
-    public void setAccident_id(Long accident_id) {
-        this.accident_id = accident_id;
+    public void setAccidentId(Long accidentId) {
+        this.accidentId = accidentId;
     }
 
-    public Long getViolation_id() {
-        return violation_id;
+    public Long getViolationId() {
+        return violationId;
     }
 
-    public void setViolation_id(Long violation_id) {
-        this.violation_id = violation_id;
+    public void setViolationId(Long violationId) {
+        this.violationId = violationId;
     }
 
     public String getMessage() {
@@ -76,27 +76,27 @@ public class NotificationsDTO {
         this.message = message;
     }
 
-    public String getNotification_type() {
-        return notification_type;
+    public String getNotificationType() {
+        return notificationType;
     }
 
-    public void setNotification_type(String notification_type) {
-        this.notification_type = notification_type;
+    public void setNotificationType(String notificationType) {
+        this.notificationType = notificationType;
     }
 
-    public Date getCreated_at() {
-        return created_at;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(Date created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     public boolean isRead() {
         return read;
     }
 
-    public void setRead(boolean is_read) {
+    public void setRead(boolean read) {
         this.read = read;
     }
 }
