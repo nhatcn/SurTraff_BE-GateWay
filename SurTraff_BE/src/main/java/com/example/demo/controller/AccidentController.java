@@ -54,4 +54,25 @@ public class AccidentController {
         accidentService.deleteAccident(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<AccidentDTO>> getAccidentsByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(accidentService.getAccidentsByUserId(userId));
+    }
+
+    @PostMapping("/{id}/request")
+    public ResponseEntity<Accident> requestAccident(@PathVariable Long id) {
+        return ResponseEntity.ok(accidentService.requestAccident(id));
+    }
+
+    @PostMapping("/{id}/process")
+    public ResponseEntity<Accident> processAccident(@PathVariable Long id) {
+        return ResponseEntity.ok(accidentService.processAccident(id));
+    }
+
+    @PostMapping("/{id}/reject")
+    public ResponseEntity<Accident> rejectAccident(@PathVariable Long id) {
+        return ResponseEntity.ok(accidentService.rejectAccident(id));
+    }
+
 }

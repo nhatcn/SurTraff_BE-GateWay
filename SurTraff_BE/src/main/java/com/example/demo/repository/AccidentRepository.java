@@ -13,4 +13,6 @@ public interface AccidentRepository extends JpaRepository<Accident, Long> {
     @Override
     List<Accident> findAll();
 
+    List<Accident> findByVehicle_User_Id(Long userId);
+
 }
