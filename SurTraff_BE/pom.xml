@@ -160,6 +160,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version> <!-- Sử dụng phiên bản mới nhất -->
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Cloudinary SDK -->
         <dependency>
             <groupId>com.cloudinary</groupId>
