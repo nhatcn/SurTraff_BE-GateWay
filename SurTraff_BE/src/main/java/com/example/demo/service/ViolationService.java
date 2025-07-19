@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -274,12 +275,44 @@ public class ViolationService {
         return violationTypeRepository.save(existingType);
     }
 
+
+    public ViolationsDTO updateViolationStatus(Long id, String status) {
+        Violation violation = violationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Vi phạm không tồn tại với ID: " + id));
+
+        if (status == null || status.trim().isEmpty()) {
+            throw new IllegalArgumentException("Trạng thái không được để trống");
+        }
+        List<String> validStatuses = Arrays.asList("PENDING", "REQUEST", "RESOLVED", "DISMISSED");
+        if (!validStatuses.contains(status.toUpperCase())) {
+            throw new IllegalArgumentException("Trạng thái không hợp lệ: " + status + ". Trạng thái hợp lệ: " + validStatuses);
+        }
+
+        violation.setStatus(status.toUpperCase());
+        Violation savedViolation = violationRepository.save(violation);
+        Hibernate.initialize(savedViolation.getViolationDetails());
+        Hibernate.initialize(savedViolation.getVehicleType());
+        return toDTO(savedViolation);
+    }
+
     private ViolationsDTO toDTO(Violation violation) {
         if (violation == null) return null;
         ViolationsDTO dto = new ViolationsDTO();
         dto.setId(violation.getId());
         dto.setCamera(violation.getCamera() != null ? convertCameraToDTO(violation.getCamera()) : null);
-        dto.setVehicleType(violation.getVehicleType());
+
+        if (violation.getVehicleType() != null) {
+            Hibernate.initialize(violation.getVehicleType());
+            VehicleType vehicleType = violation.getVehicleType();
+            VehicleType copy = new VehicleType();
+            copy.setId(vehicleType.getId());
+            copy.setTypeName(vehicleType.getTypeName());
+
+            dto.setVehicleType(copy);
+        } else {
+            dto.setVehicleType(null);
+        }
+
         dto.setVehicle(violation.getVehicle() != null ? convertVehicleToDTO(violation.getVehicle()) : null);
         dto.setCreatedAt(violation.getCreatedAt());
         if (Hibernate.isInitialized(violation.getViolationDetails()) && violation.getViolationDetails() != null) {
@@ -290,6 +323,7 @@ public class ViolationService {
         dto.setStatus(violation.getStatus());
         return dto;
     }
+
 
     private Violation toEntity(ViolationsDTO dto) {
         if (dto == null) return null;

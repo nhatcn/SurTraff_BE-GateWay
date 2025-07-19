@@ -257,4 +257,17 @@ public class ViolationController {
                     .body(null);
         }
     }
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ViolationsDTO> updateViolationStatus(@PathVariable Long id, @RequestBody String status) {
+        try {
+            ViolationsDTO updatedViolation = violationService.updateViolationStatus(id, status);
+            return ResponseEntity.ok(updatedViolation);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
