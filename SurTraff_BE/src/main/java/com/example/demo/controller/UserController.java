@@ -13,12 +13,16 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -144,7 +148,7 @@ public class UserController {
     }
 
     @PostMapping("/forgotPassword")
-    public ResponseEntity<?> forgotPassword(@RequestBody UserDTO usersDTO) {
+    public ResponseEntity<?> forgotPassword(@RequestBody UserDTO usersDTO) throws IOException {
         Optional<UserDTO> optionalUserDto = userService.getUserByEmail(usersDTO.getEmail());
 
         if (optionalUserDto.isPresent()) {
@@ -152,7 +156,7 @@ public class UserController {
             String newPassword = userService.generateRandomPassword();
             userDto.setPassword(newPassword);
 
-            User updatedUser = userService.updateUser(userDto.getUserId(), userDto);
+            User updatedUser = userService.updateUser(userDto.getUserId(), userDto,null);
             if (updatedUser != null) {
                 sendEmail(userDto.getEmail(), newPassword, userDto.getUserName());
                 return ResponseEntity.ok(userDto);
@@ -170,9 +174,13 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO updatedUser) {
-        User user = userService.updateUser(id, updatedUser);
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserDTO> updateUser(
+            @PathVariable Long id,
+            @ModelAttribute UserDTO updatedUser,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatar
+    ) throws IOException {
+        User user = userService.updateUser(id, updatedUser,avatar);
         if (user != null) {
             return ResponseEntity.ok(userService.getUserById(id).orElseThrow());
         }

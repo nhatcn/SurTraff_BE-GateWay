@@ -49,8 +49,10 @@ public class CameraService {
         camera.setLatitude(dto.getLatitude());
         camera.setLongitude(dto.getLongitude());
         camera.setMaxSpeed(dto.getMaxSpeed());
-        camera.setLocation(camera.getLocation());
+        camera.setLocation(dto.getLocation());
+        camera.setThumbnail(dto.getThumbnail());
         camera = cameraRepository.save(camera);
+
         camera.setViolationType(violationTypeRepository.findById(dto.getViolationTypeId()).get());
 
         // 2. Lưu zone và ánh xạ ID tạm từ FE sang ID thật từ DB
@@ -151,6 +153,7 @@ public class CameraService {
                 .location(camera.getLocation())
                 .latitude(camera.getLatitude())
                 .longitude(camera.getLongitude())
+                .thumbnail(camera.getThumbnail())
                 .zones(zoneDTOs)
                 .zoneLightLaneLinks(lightLaneDTOs)
                 .laneMovements(movementDTOs)
