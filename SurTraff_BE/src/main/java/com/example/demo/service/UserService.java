@@ -6,7 +6,9 @@ import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -24,6 +26,8 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
     private UserDTO convertToDTO(User user, boolean includePassword) {
         if (includePassword) {
             return new UserDTO(
@@ -80,7 +84,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User updateUser(Long id, UserDTO updatedUser) {
+    public User updateUser(Long id, UserDTO updatedUser, MultipartFile avt) throws IOException {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isPresent()) {
             User existingUser = userOptional.get();
@@ -106,6 +110,9 @@ public class UserService {
                         roleService.getRoleById(updatedUser.getRoleId())
                                 .orElseThrow(() -> new IllegalArgumentException("Role not found"))
                 );
+            }
+            if(avt!= null){
+                existingUser.setAvatar(cloudinaryService.uploadImage(avt));
             }
 
             return userRepository.save(existingUser);
