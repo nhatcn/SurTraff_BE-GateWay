@@ -2,17 +2,25 @@ package com.example.demo.service;
 
 import com.example.demo.DTO.AccidentDTO;
 import com.example.demo.model.Accident;
+import com.example.demo.model.Notifications;
+import com.example.demo.model.User;
+import com.example.demo.model.Vehicle;
 import com.example.demo.repository.AccidentRepository;
+import com.example.demo.repository.NotificationsRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +33,9 @@ public class AccidentService {
 
     @Autowired
     private AccidentRepository accidentRepository;
+
+    @Autowired
+    private NotificationsRepository notificationsRepository;
 
     public AccidentService(AccidentRepository accidentRepository) {
         this.accidentRepository = accidentRepository;
@@ -72,6 +83,38 @@ public class AccidentService {
             logger.error("Error sending email for accident ID: {}", id, e);
         }
 
+        // ✅ Tạo và lưu thông báo
+        try {
+            User user = updatedAccident.getVehicle().getUser();
+            Vehicle vehicle = updatedAccident.getVehicle();
+
+            String licensePlate = vehicle.getLicensePlate(); // Đảm bảo có getter này
+            String description = updatedAccident.getDescription(); // Đảm bảo không null
+            String location = updatedAccident.getLocation(); // Đảm bảo không null
+
+            String message = String.format(
+                    "Your vehicle %s was %s in %s.",
+                    licensePlate, description, location
+            );
+
+            Notifications notification = Notifications.builder()
+                    .user(user)
+                    .vehicle(vehicle)
+                    .accident(updatedAccident)
+                    .violation(null)
+                    .message(message)
+                    .notification_type("accident")
+                    .read(false)
+                    .created_at(LocalDateTime.now())
+                    .build();
+
+            notificationsRepository.save(notification);
+            logger.info("Notification saved for user: {}", user.getId());
+
+        } catch (Exception e) {
+            logger.error("Failed to save notification for accident ID: {}", id, e);
+        }
+
         return updatedAccident;
     }
 
@@ -80,28 +123,37 @@ public class AccidentService {
         String fullName = accident.getVehicle().getUser().getFullName();
         String licensePlate = accident.getVehicle().getLicensePlate();
         String location = accident.getLocation();
-
         String subject = "Notification: Your accident has been recorded";
-
-        String content = String.format(
-                "Dear %s,\n\n" +
-                        "We have recorded an accident related to your vehicle with the following details:\n\n" +
-                        "- Accident ID: %d\n" +
-                        "- License Plate: %s\n" +
-                        "- Location: %s\n" +
-                        "- Status: Approved\n\n" +
-                        "If you have any questions or require additional information, please contact our support team.\n\n" +
-                        "Best regards,\n" +
-                        "Accident Management System",
-                fullName, accident.getId(), licensePlate, location
-        );
-
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setTo(userEmail);
         helper.setSubject(subject);
-        helper.setText(content);
-        mailSender.send(mimeMessage);
+        String imageCid = "accidentImage001";
+        String htmlContent = String.format(
+                "<p>Dear %s,</p>" +
+                        "<p>We have recorded an accident related to your vehicle:</p>" +
+                        "<ul>" +
+                        "<li><strong>Accident ID:</strong> %d</li>" +
+                        "<li><strong>License Plate:</strong> %s</li>" +
+                        "<li><strong>Location:</strong> %s</li>" +
+                        "<li><strong>Status:</strong> Approved</li>" +
+                        "</ul>" +
+                        "<p><strong>Accident Image:</strong></p>" +
+                        "<img src='cid:%s' width='500'/>" +
+                        "<p>If you have questions, contact support.</p>" +
+                        "<p>Regards,<br>Accident Management System</p>",
+                fullName, accident.getId(), licensePlate, location, imageCid
+        );
+        helper.setText(htmlContent, true);
+        String imageUrl = accident.getImage_url(); // Corrected: get link ảnh từ database
+        try (InputStream in = new URL(imageUrl).openStream()) {
+            byte[] imageBytes = in.readAllBytes();
+            ByteArrayResource imageResource = new ByteArrayResource(imageBytes);
+            helper.addInline(imageCid, imageResource, "image/jpeg");
+        } catch (Exception e) {
+            logger.warn("Failed to load image from URL: {}", imageUrl, e);
+        }
+        mailSender.send(message);
     }
 
     public AccidentDTO convertToDTO(Accident accident) {
