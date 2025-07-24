@@ -23,7 +23,7 @@ public class Violation {
     private Camera camera;
 
     @ManyToOne
-    @JoinColumn(name = "violation_type_id")
+    @JoinColumn(name = "vehicle_type_id")
     private VehicleType vehicleType;
 
     @ManyToOne
@@ -36,4 +36,5 @@ public class Violation {
     private List<ViolationDetail> violationDetails;
 
     private String status;
+
 }
