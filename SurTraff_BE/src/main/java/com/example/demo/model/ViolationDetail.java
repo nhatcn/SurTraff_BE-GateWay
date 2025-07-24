@@ -38,4 +38,8 @@ public class ViolationDetail {
     private String additionalNotes;
 
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    private String licensePlate;
+
+
 }

@@ -21,4 +21,5 @@ public class ViolationDetailDTO {
     private Double speed;
     private String additionalNotes;
     private LocalDateTime createdAt;
+    private String licensePlate; // Thêm trường licensePlate
 }

@@ -63,16 +63,19 @@ public class ViolationController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ViolationsDTO> createViolation(@Valid @RequestBody ViolationsDTO dto) {
+    public ResponseEntity<ViolationsDTO> createViolation(
+            @Valid @RequestPart("Violation") ViolationsDTO dto,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+            @RequestPart(value = "videoFile", required = false) MultipartFile videoFile) {
         try {
-            ViolationsDTO createdViolation = violationService.createViolation(dto);
+            ViolationsDTO createdViolation = violationService.createViolation(dto, imageFile, videoFile);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdViolation);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
