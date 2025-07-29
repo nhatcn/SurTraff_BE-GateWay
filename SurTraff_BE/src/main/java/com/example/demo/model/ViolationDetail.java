@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class ViolationDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "violation_id", nullable = false)
@@ -38,4 +38,8 @@ public class ViolationDetail {
     private String additionalNotes;
 
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    private String licensePlate;
+
+
 }

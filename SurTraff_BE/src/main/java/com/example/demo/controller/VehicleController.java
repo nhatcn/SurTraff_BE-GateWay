@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.DTO.VehicleDTO;
 import com.example.demo.service.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,5 +38,11 @@ public class VehicleController {
     @DeleteMapping("/{id}")
     public void deleteVehicle(@PathVariable Long id) {
         vehicleService.deleteVehicle(id);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<VehicleDTO>> getVehiclesByUserId(@PathVariable Long userId) {
+        List<VehicleDTO> vehicles = vehicleService.getVehiclesByUserId(userId);
+        return ResponseEntity.ok(vehicles);
     }
 }

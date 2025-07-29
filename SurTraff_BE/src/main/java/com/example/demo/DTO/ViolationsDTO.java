@@ -1,26 +1,21 @@
 package com.example.demo.DTO;
 
+import com.example.demo.model.VehicleType;
+import lombok.*;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ViolationsDTO {
     private Long id;
-    private String createdAt;
-    private Integer vehicleId; // Sửa từ Long thành Integer
-
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public String getCreatedAt() {
-        return createdAt;
-    }
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-    }
-    public Integer getVehicleId() {
-        return vehicleId;
-    }
-    public void setVehicleId(Integer vehicleId) {
-        this.vehicleId = vehicleId;
-    }
+    private CameraDTO camera;
+    private VehicleType vehicleType;
+    private VehicleDTO vehicle;
+    private LocalDateTime createdAt;
+    private List<ViolationDetailDTO> violationDetails;
+    private String status;
 }
