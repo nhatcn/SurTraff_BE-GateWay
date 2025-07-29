@@ -56,7 +56,7 @@ public class UserController {
 
         try {
             User newUser = new User();
-            newUser.setFullName(userDTO.getName());
+            newUser.setFullName(userDTO.getFullName());
             newUser.setUserName(userDTO.getUserName());
             newUser.setPassword(userDTO.getPassword());
             newUser.setEmail(userDTO.getEmail());

@@ -1,5 +1,6 @@
 package com.example.demo.DTO;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,18 +20,6 @@ public class VehicleDTO {
     private String brand;
     // Getters & Setters
 
-    public VehicleDTO() {
-    }
-
-    public VehicleDTO(Long id, String name, String licensePlate, Long userId, Long vehicleTypeId, String color, String brand) {
-        this.id = id;
-        this.name = name;
-        this.licensePlate = licensePlate;
-        this.userId = userId;
-        this.vehicleTypeId = vehicleTypeId;
-        this.color = color;
-        this.brand = brand;
-    }
 
     public Long getId() {
         return id;

@@ -52,6 +52,7 @@ public class CameraService {
         camera.setLocation(dto.getLocation());
         camera.setThumbnail(dto.getThumbnail());
         camera = cameraRepository.save(camera);
+
         camera.setViolationType(violationTypeRepository.findById(dto.getViolationTypeId()).get());
 
         camera.setViolationType(violationTypeRepository.findById(dto.getViolationTypeId()).get());

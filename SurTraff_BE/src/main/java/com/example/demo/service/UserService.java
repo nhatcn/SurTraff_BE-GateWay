@@ -35,6 +35,8 @@ public class UserService {
                     user.getUserName(),
                     user.getFullName(),
                     user.getEmail(),
+                    user.getAddress(),
+                    user.getPhoneNumber(),
                     user.getStatus(),
                     user.getPassword(),
                     user.getAvatar(),
@@ -47,6 +49,8 @@ public class UserService {
                     user.getUserName(),
                     user.getFullName(),
                     user.getEmail(),
+                    user.getAddress(),
+                    user.getPhoneNumber(),
                     user.getStatus(),
                     user.getAvatar(),
                     user.getRole().getId(),
@@ -89,8 +93,8 @@ public class UserService {
         if (userOptional.isPresent()) {
             User existingUser = userOptional.get();
 
-            if (updatedUser.getName() != null) {
-                existingUser.setFullName(updatedUser.getName());
+            if (updatedUser.getFullName() != null) {
+                existingUser.setFullName(updatedUser.getFullName());
             }
 
             if (updatedUser.getEmail() != null) {
