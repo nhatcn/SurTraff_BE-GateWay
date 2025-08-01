@@ -118,12 +118,14 @@ public class UserService {
             if(avt!= null){
                 existingUser.setAvatar(cloudinaryService.uploadImage(avt));
             }
+
             if (updatedUser.getAddress() != null){
                 existingUser.setAddress(updatedUser.getAddress());
             }
             if (updatedUser.getPhoneNumber() != null){
                 existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
             }
+
             return userRepository.save(existingUser);
         }
         return null;

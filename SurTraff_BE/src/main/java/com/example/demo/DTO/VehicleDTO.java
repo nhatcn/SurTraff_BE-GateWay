@@ -21,6 +21,7 @@ public class VehicleDTO {
     // Getters & Setters
 
 
+
     public Long getId() {
         return id;
     }

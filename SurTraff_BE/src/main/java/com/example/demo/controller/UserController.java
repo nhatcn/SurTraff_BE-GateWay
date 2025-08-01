@@ -181,6 +181,7 @@ public class UserController {
             @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile
     ) throws IOException {
         User user = userService.updateUser(id, updatedUser,avatarFile);
+
         if (user != null) {
             return ResponseEntity.ok(userService.getUserById(id).orElseThrow());
         }
