@@ -36,4 +36,5 @@ public class Violation {
     private List<ViolationDetail> violationDetails;
 
     private String status;
+
 }

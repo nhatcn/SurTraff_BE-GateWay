@@ -30,7 +30,8 @@ public class User {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     private LocalDateTime updatedAt = LocalDateTime.now();
-
+    private String address;
+    private String phoneNumber;
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;

@@ -56,7 +56,7 @@ public class UserController {
 
         try {
             User newUser = new User();
-            newUser.setFullName(userDTO.getName());
+            newUser.setFullName(userDTO.getFullName());
             newUser.setUserName(userDTO.getUserName());
             newUser.setPassword(userDTO.getPassword());
             newUser.setEmail(userDTO.getEmail());
@@ -178,9 +178,10 @@ public class UserController {
     public ResponseEntity<UserDTO> updateUser(
             @PathVariable Long id,
             @ModelAttribute UserDTO updatedUser,
-            @RequestPart(value = "avatar", required = false) MultipartFile avatar
+            @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile
     ) throws IOException {
-        User user = userService.updateUser(id, updatedUser,avatar);
+        User user = userService.updateUser(id, updatedUser,avatarFile);
+
         if (user != null) {
             return ResponseEntity.ok(userService.getUserById(id).orElseThrow());
         }

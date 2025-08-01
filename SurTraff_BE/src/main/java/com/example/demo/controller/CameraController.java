@@ -5,8 +5,10 @@ import com.example.demo.DTO.CameraWithZonesDTO;
 import com.example.demo.model.Camera;
 import com.example.demo.service.CameraService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -58,10 +60,14 @@ public class CameraController {
         }
     }
 
-    @PostMapping("/setup")
-    public ResponseEntity<String> setupCamera(@RequestBody CameraSetupDTO setupDTO) {
+    @PostMapping(value = "/setup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> setupCamera(
+            @RequestPart("setupDTO") CameraSetupDTO setupDTO,
+            @RequestPart(value = "thumbnailFile", required = false) MultipartFile thumbnailFile) {
         try {
-            cameraService.setupCamera(setupDTO);
+
+            cameraService.setupCamera(setupDTO, thumbnailFile);
+
             return ResponseEntity.ok("Camera setup successful");
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body("Setup failed: " + ex.getMessage());
