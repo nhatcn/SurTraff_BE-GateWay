@@ -6,7 +6,9 @@ import com.example.demo.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -26,6 +28,8 @@ public class CameraService {
 
     @Autowired
     private ViolationTypeRepository violationTypeRepository;
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     public List<Camera> getAllCameras() {
         return cameraRepository.findAll();
@@ -41,7 +45,7 @@ public class CameraService {
     }
 
     @Transactional
-    public void setupCamera(CameraSetupDTO dto) {
+    public void setupCamera(CameraSetupDTO dto, MultipartFile thumbnail) throws IOException {
         // 1. Tạo camera mới
         Camera camera = new Camera();
         camera.setName(dto.getCameraName());
@@ -50,8 +54,11 @@ public class CameraService {
         camera.setLongitude(dto.getLongitude());
         camera.setMaxSpeed(dto.getMaxSpeed());
         camera.setLocation(dto.getLocation());
-        camera.setThumbnail(dto.getThumbnail());
         camera = cameraRepository.save(camera);
+        if(thumbnail !=null){
+          String thumbnailURL=  cloudinaryService.uploadImage(thumbnail);
+          camera.setThumbnail(thumbnailURL);
+        }
 
         camera.setViolationType(violationTypeRepository.findById(dto.getViolationTypeId()).get());
 
