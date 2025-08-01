@@ -55,7 +55,6 @@ public class CameraService {
 
         camera.setViolationType(violationTypeRepository.findById(dto.getViolationTypeId()).get());
 
-        // 2. Lưu zone và ánh xạ ID tạm từ FE sang ID thật từ DB
         Map<Long, Zone.ZoneType> zoneIdToType = new HashMap<>();
         Map<Long, Zone> zoneIdToEntity = new HashMap<>();
         Map<Long, Long> tempZoneIdToRealId = new HashMap<>();
@@ -123,8 +122,9 @@ public class CameraService {
                         .id(zone.getId())
                         .name(zone.getName())
                         .cameraId(camera.getId())
-                        .zoneType(zone.getZoneType().name()) // giữ nguyên lowercase
+                        .zoneType(zone.getZoneType().name())
                         .coordinates(zone.getCoordinates())
+
                         .build())
                 .toList();
 
@@ -157,9 +157,9 @@ public class CameraService {
                 .zones(zoneDTOs)
                 .zoneLightLaneLinks(lightLaneDTOs)
                 .laneMovements(movementDTOs)
+                .violationTypeId(camera.getViolationType().getId())
                 .build();
     }
-
 
 
     @Transactional
