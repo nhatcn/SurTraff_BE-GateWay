@@ -60,6 +60,7 @@ public class CameraService {
           camera.setThumbnail(thumbnailURL);
         }
 
+
         camera.setViolationType(violationTypeRepository.findById(dto.getViolationTypeId()).get());
 
         camera.setViolationType(violationTypeRepository.findById(dto.getViolationTypeId()).get());

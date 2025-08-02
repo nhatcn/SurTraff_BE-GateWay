@@ -300,6 +300,39 @@ public class ViolationService {
         violationRepository.deleteById(id);
     }
 
+
+    @Transactional
+    public ViolationsDTO createViolationNhat(ViolationsDTO dto, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
+
+        Violation violation = new Violation();
+        violation.setCamera(cameraRepository.findById(dto.getCamera().getId()).orElseThrow());
+        violation.setCreatedAt(dto.getCreatedAt());
+        violation.setStatus(dto.getStatus());
+        violation = violationRepository.save(violation);
+
+        for (ViolationDetailDTO detailDTO : dto.getViolationDetails()) {
+            ViolationDetail detail = new ViolationDetail();
+            detail.setViolation(violation);
+            detail.setLocation(dto.getCamera().getLocation());
+            detail.setViolationTime(detailDTO.getViolationTime());
+            detail.setViolationType(violationTypeRepository.findById(detailDTO.getViolationTypeId()).orElseThrow());
+
+
+            if (imageFile != null && !imageFile.isEmpty()) {
+                detail.setImageUrl(cloudinaryService.uploadImage(imageFile));
+            }
+
+            if (videoFile != null && !videoFile.isEmpty()) {
+
+                detail.setVideoUrl(cloudinaryService.uploadVideo(videoFile));
+            }
+
+            violationDetailRepository.save(detail); // ❗ GỌI save ở đây
+        }
+
+        return  toDTO(violation);
+    }
+
     public ViolationDetailDTO updateViolationDetail(Long detailId, ViolationDetailDTO dto, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
         if (dto == null) {
             throw new IllegalArgumentException("Dữ liệu chi tiết vi phạm không được null");
