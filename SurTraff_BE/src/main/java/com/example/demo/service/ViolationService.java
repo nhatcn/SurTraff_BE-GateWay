@@ -327,7 +327,7 @@ public class ViolationService {
                 detail.setVideoUrl(cloudinaryService.uploadVideo(videoFile));
             }
 
-            violationDetailRepository.save(detail); // ❗ GỌI save ở đây
+            violationDetailRepository.save(detail); 
         }
 
         return  toDTO(violation);
