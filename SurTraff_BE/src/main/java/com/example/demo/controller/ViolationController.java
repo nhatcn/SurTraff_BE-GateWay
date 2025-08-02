@@ -68,7 +68,7 @@ public class ViolationController {
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
             @RequestPart(value = "videoFile", required = false) MultipartFile videoFile) {
         try {
-            ViolationsDTO createdViolation = violationService.createViolation(dto, imageFile, videoFile);
+            ViolationsDTO createdViolation = violationService.createViolationNhat(dto, imageFile, videoFile);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdViolation);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
