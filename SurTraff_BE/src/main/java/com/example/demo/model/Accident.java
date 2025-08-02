@@ -38,4 +38,7 @@ public class Accident {
 
     private LocalDateTime accident_time;
     private LocalDateTime created_at = LocalDateTime.now();
+
+    @Column(name = "is_delete")
+    private Boolean isDelete = false;
 }

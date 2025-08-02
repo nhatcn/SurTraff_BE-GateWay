@@ -15,4 +15,7 @@ public interface AccidentRepository extends JpaRepository<Accident, Long> {
 
     List<Accident> findByVehicle_User_Id(Long userId);
 
+    List<Accident> findByIsDeleteFalse();
+    List<Accident> findByVehicle_User_IdAndIsDeleteFalse(Long userId);
+
 }
