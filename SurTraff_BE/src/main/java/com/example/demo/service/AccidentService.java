@@ -42,7 +42,7 @@ public class AccidentService {
     }
 
     public List<AccidentDTO> getAllAccidents() {
-        List<Accident> accidents = accidentRepository.findAll();
+        List<Accident> accidents = accidentRepository.findByIsDeleteFalse();
         return accidents.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -55,7 +55,11 @@ public class AccidentService {
     }
 
     public void deleteAccident(Long id) {
-        accidentRepository.deleteById(id);
+        Accident accident = accidentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Accident not found with ID: " + id));
+
+        accident.setIsDelete(true);
+        accidentRepository.save(accident);
     }
 
     public Accident updateAccident(Long id, Accident updatedAccident) {
@@ -83,18 +87,15 @@ public class AccidentService {
             logger.error("Error sending email for accident ID: {}", id, e);
         }
 
-        // ✅ Tạo và lưu thông báo
         try {
             User user = updatedAccident.getVehicle().getUser();
             Vehicle vehicle = updatedAccident.getVehicle();
 
-            String licensePlate = vehicle.getLicensePlate(); // Đảm bảo có getter này
-            String description = updatedAccident.getDescription(); // Đảm bảo không null
-            String location = updatedAccident.getLocation(); // Đảm bảo không null
-
             String message = String.format(
                     "Your vehicle %s was %s in %s.",
-                    licensePlate, description, location
+                    vehicle.getLicensePlate(),
+                    updatedAccident.getDescription(),
+                    updatedAccident.getLocation()
             );
 
             Notifications notification = Notifications.builder()
@@ -145,7 +146,7 @@ public class AccidentService {
                 fullName, accident.getId(), licensePlate, location, imageCid
         );
         helper.setText(htmlContent, true);
-        String imageUrl = accident.getImage_url(); // Corrected: get link ảnh từ database
+        String imageUrl = accident.getImage_url();
         try (InputStream in = new URL(imageUrl).openStream()) {
             byte[] imageBytes = in.readAllBytes();
             ByteArrayResource imageResource = new ByteArrayResource(imageBytes);
@@ -205,16 +206,18 @@ public class AccidentService {
                 ? java.util.Date.from(accident.getCreated_at().atZone(java.time.ZoneId.systemDefault()).toInstant())
                 : null);
 
+        dto.setIsDelete(accident.getIsDelete());
+
         return dto;
     }
 
     public List<AccidentDTO> getAccidentsByUserId(Long userId) {
-        List<Accident> accidents = accidentRepository.findByVehicle_User_Id(userId);
+        List<Accident> accidents = accidentRepository.findByVehicle_User_IdAndIsDeleteFalse(userId);
         return accidents.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-    
+
     public Accident requestAccident(Long id) {
         Accident accident = accidentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Accident not found with ID: " + id));
@@ -222,7 +225,7 @@ public class AccidentService {
         accident.setStatus("Requested");
         return accidentRepository.save(accident);
     }
-    
+
     public Accident processAccident(Long id) {
         Accident accident = accidentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Accident not found with ID: " + id));
@@ -230,7 +233,7 @@ public class AccidentService {
         accident.setStatus("Processed");
         return accidentRepository.save(accident);
     }
-    
+
     public Accident rejectAccident(Long id) {
         Accident accident = accidentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Accident not found with ID: " + id));
@@ -238,5 +241,4 @@ public class AccidentService {
         accident.setStatus("Rejected");
         return accidentRepository.save(accident);
     }
-
 }

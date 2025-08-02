@@ -20,11 +20,15 @@ public class AccidentDTO {
     private String status;
     private Date accidentTime;
     private Date createdAt;
+    private Boolean isDelete;
 
     public AccidentDTO() {
     }
 
-    public AccidentDTO(Long id, Long cameraId, Double latitude, Double longitude, Long vehicleId, Long userId, String userEmail, String userFullName, String licensePlate, String name, String description, String imageUrl, String videoUrl, String location, String status, Date accidentTime, Date createdAt) {
+    public AccidentDTO(Long id, Long cameraId, Double latitude, Double longitude, Long vehicleId, Long userId,
+                       String userEmail, String userFullName, String licensePlate, String name, String description,
+                       String imageUrl, String videoUrl, String location, String status,
+                       Date accidentTime, Date createdAt, Boolean isDelete) {
         this.id = id;
         this.cameraId = cameraId;
         this.latitude = latitude;
@@ -42,7 +46,10 @@ public class AccidentDTO {
         this.status = status;
         this.accidentTime = accidentTime;
         this.createdAt = createdAt;
+        this.isDelete = isDelete;
     }
+
+    // Getters and setters
 
     public Long getId() {
         return id;
@@ -178,5 +185,13 @@ public class AccidentDTO {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Boolean getIsDelete() {
+        return isDelete;
+    }
+
+    public void setIsDelete(Boolean isDelete) {
+        this.isDelete = isDelete;
     }
 }
