@@ -149,20 +149,30 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}")
     public ResponseEntity<UserDTO> updateUser(
             @PathVariable Long id,
-            @ModelAttribute UserDTO updatedUser,
-            @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile
-    ) throws IOException {
-        User user = userService.updateUser(id, updatedUser, avatarFile);
+            @RequestBody UserDTO updatedUser) throws IOException {
+        User user = userService.updateUser(id, updatedUser,null);
 
         if (user != null) {
             return ResponseEntity.ok(userService.getUserById(id).orElseThrow());
         }
         return ResponseEntity.notFound().build();
     }
-
+//    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<UserDTO> updateUser(
+//            @PathVariable Long id,
+//            @ModelAttribute UserDTO updatedUser,
+//            @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile
+//    ) throws IOException {
+//        User user = userService.updateUser(id, updatedUser, avatarFile);
+//
+//        if (user != null) {
+//            return ResponseEntity.ok(userService.getUserById(id).orElseThrow());
+//        }
+//        return ResponseEntity.notFound().build();
+//    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
