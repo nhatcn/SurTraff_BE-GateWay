@@ -7,6 +7,8 @@ public class AccidentDTO {
     private Long cameraId;
     private Double latitude;
     private Double longitude;
+    private String cameraName; // Thêm trường này
+    private String cameraLocation; // Thêm trường này
     private Long vehicleId;
     private Long userId;
     private String userEmail;
@@ -25,14 +27,16 @@ public class AccidentDTO {
     public AccidentDTO() {
     }
 
-    public AccidentDTO(Long id, Long cameraId, Double latitude, Double longitude, Long vehicleId, Long userId,
-                       String userEmail, String userFullName, String licensePlate, String name, String description,
+    public AccidentDTO(Long id, Long cameraId, Double latitude, Double longitude, String cameraName, String cameraLocation, // Cập nhật constructor
+                       Long vehicleId, Long userId, String userEmail, String userFullName, String licensePlate, String name, String description,
                        String imageUrl, String videoUrl, String location, String status,
                        Date accidentTime, Date createdAt, Boolean isDelete) {
         this.id = id;
         this.cameraId = cameraId;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.cameraName = cameraName; // Gán giá trị
+        this.cameraLocation = cameraLocation; // Gán giá trị
         this.vehicleId = vehicleId;
         this.userId = userId;
         this.userEmail = userEmail;
@@ -50,7 +54,6 @@ public class AccidentDTO {
     }
 
     // Getters and setters
-
     public Long getId() {
         return id;
     }
@@ -81,6 +84,23 @@ public class AccidentDTO {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    // Thêm getters và setters cho cameraName và cameraLocation
+    public String getCameraName() {
+        return cameraName;
+    }
+
+    public void setCameraName(String cameraName) {
+        this.cameraName = cameraName;
+    }
+
+    public String getCameraLocation() {
+        return cameraLocation;
+    }
+
+    public void setCameraLocation(String cameraLocation) {
+        this.cameraLocation = cameraLocation;
     }
 
     public Long getVehicleId() {
