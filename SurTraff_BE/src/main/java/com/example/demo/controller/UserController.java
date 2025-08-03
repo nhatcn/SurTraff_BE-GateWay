@@ -49,22 +49,8 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> createUser(@RequestBody UserDTO userDTO) {
-        if (userService.getUserByUserName(userDTO.getUserName()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Username already exists."));
-        }
-
         try {
-            User newUser = new User();
-            newUser.setFullName(userDTO.getFullName());
-            newUser.setUserName(userDTO.getUserName());
-            newUser.setPassword(userDTO.getPassword());
-            newUser.setEmail(userDTO.getEmail());
-            newUser.setAvatar("https://th.bing.com/th/id/OIP.Fogk0Q6C7GEQEdVyrbV9MwHaHa?rs=1&pid=ImgDetMain");
-            newUser.setStatus(true);
-            newUser.setRole(roleService.getRoleById(1L).orElseThrow());
-
-            User createdUser = userService.createUser(newUser);
+            User createdUser = userService.registerUser(userDTO);
             String token = JwtUtil.generateToken(createdUser.getId().toString(), createdUser.getRole().getRoleName());
 
             return ResponseEntity.ok(Map.of(
@@ -72,12 +58,14 @@ public class UserController {
                     "userId", createdUser.getId().toString(),
                     "role", createdUser.getRole().getRoleName()
             ));
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to register user. Please try again."));
+                    .body(Map.of("error", e.getMessage()));
         }
     }
-
 
     @PostMapping("/signin")
     public ResponseEntity<?> googleSignin(@RequestBody Map<String, String> request) {
@@ -96,22 +84,9 @@ public class UserController {
                 String name = (String) payload.get("name");
                 String avatar = (String) payload.get("picture");
 
-                Optional<UserDTO> existingUserDTO = userService.getUserByEmail(email);
-                UserDTO userDTO;
-
-                if (existingUserDTO.isPresent()) {
-                    userDTO = existingUserDTO.get();
-                } else {
-                    User newUser = new User();
-                    newUser.setFullName(name);
-                    newUser.setEmail(email);
-                    newUser.setAvatar(avatar);
-                    newUser.setStatus(true);
-                    newUser.setRole(roleService.getRoleById(1L).orElseThrow());
-
-                    User createdUser = userService.createUser(newUser);
-                    userDTO = userService.getUserById(createdUser.getId()).orElseThrow();
-                }
+                // Logic được di chuyển sang Service
+                User user = userService.handleGoogleSignIn(email, name, avatar);
+                UserDTO userDTO = userService.getUserById(user.getId()).orElseThrow();
 
                 String tokenGenerated = JwtUtil.generateToken(userDTO.getUserId().toString(), userDTO.getRoleName());
 
@@ -148,22 +123,22 @@ public class UserController {
     }
 
     @PostMapping("/forgotPassword")
-    public ResponseEntity<?> forgotPassword(@RequestBody UserDTO usersDTO) throws IOException {
-        Optional<UserDTO> optionalUserDto = userService.getUserByEmail(usersDTO.getEmail());
+    public ResponseEntity<?> forgotPassword(@RequestBody UserDTO usersDTO) {
+        try {
+            // Logic được di chuyển sang Service
+            UserDTO userDto = userService.processForgotPassword(usersDTO.getEmail());
 
-        if (optionalUserDto.isPresent()) {
-            UserDTO userDto = optionalUserDto.get();
-            String newPassword = userService.generateRandomPassword();
-            userDto.setPassword(newPassword);
+            // Controller chỉ xử lý việc gửi email
+            sendEmail(userDto.getEmail(), userDto.getPassword(), userDto.getUserName());
 
-            User updatedUser = userService.updateUser(userDto.getUserId(), userDto,null);
-            if (updatedUser != null) {
-                sendEmail(userDto.getEmail(), newPassword, userDto.getUserName());
-                return ResponseEntity.ok(userDto);
-            }
+            return ResponseEntity.ok(userDto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to process forgot password request"));
         }
-
-        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/profile")
@@ -180,7 +155,7 @@ public class UserController {
             @ModelAttribute UserDTO updatedUser,
             @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile
     ) throws IOException {
-        User user = userService.updateUser(id, updatedUser,avatarFile);
+        User user = userService.updateUser(id, updatedUser, avatarFile);
 
         if (user != null) {
             return ResponseEntity.ok(userService.getUserById(id).orElseThrow());
@@ -194,7 +169,8 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    public void sendEmail(String toEmail, String password, String user) {
+    // Phương thức gửi email nên được giữ ở Controller hoặc tạo EmailService riêng
+    private void sendEmail(String toEmail, String password, String user) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
