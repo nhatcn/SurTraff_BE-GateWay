@@ -6,25 +6,37 @@ import com.example.demo.DTO.ViolationDetailDTO;
 import com.example.demo.DTO.ViolationsDTO;
 import com.example.demo.model.*;
 import com.example.demo.repository.*;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.persistence.EntityNotFoundException;
 import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class ViolationService {
+    private static final Logger logger = LoggerFactory.getLogger(ViolationService.class);
 
     private final ViolationRepository violationRepository;
     private final CameraRepository cameraRepository;
@@ -36,8 +48,14 @@ public class ViolationService {
     private final ZoneRepository zoneRepository;
     private final CloudinaryService cloudinaryService;
 
+    @Autowired
+    private JavaMailSender mailSender;
+
     @Value("${file.upload-dir}")
     private String uploadDir;
+
+    private final String pdfShiftApiKey = "sk_cba8b808d8d558b87e82ee38c26d5382b95de103"; // Thay bằng API Key thật từ PDFShift
+
 
     @Autowired
     public ViolationService(ViolationRepository violationRepository, CameraRepository cameraRepository,
@@ -411,21 +429,209 @@ public class ViolationService {
     }
 
     public ViolationsDTO updateViolationStatus(Long id, String status) {
+        logger.info("Starting status update for violation ID: {}, status: {}", id, status);
         Violation violation = violationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Vi phạm không tồn tại với ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Violation not found with ID: " + id));
 
         if (status == null || status.trim().isEmpty()) {
-            throw new IllegalArgumentException("Trạng thái không được để trống");
+            throw new IllegalArgumentException("Status cannot be empty");
         }
-        List<String> validStatuses = Arrays.asList("PENDING", "REQUEST", "RESOLVED", "DISMISSED");
+        List<String> validStatuses = Arrays.asList("PENDING", "REQUEST", "RESOLVED", "DISMISSED", "APPROVE", "REJECT");
         if (!validStatuses.contains(status.toUpperCase())) {
-            throw new IllegalArgumentException("Trạng thái không hợp lệ: " + status + ". Trạng thái hợp lệ: " + validStatuses);
+            throw new IllegalArgumentException("Invalid status: " + status + ". Valid statuses: " + validStatuses);
         }
 
         violation.setStatus(status.toUpperCase());
         Violation savedViolation = violationRepository.save(violation);
         Hibernate.initialize(savedViolation.getViolationDetails());
+        logger.info("Saved violation status for ID: {}, status: {}", savedViolation.getId(), savedViolation.getStatus());
+
+        if ("APPROVE".equals(status.toUpperCase())) {
+            try {
+                logger.info("Generating PDF and sending email for violation ID: {}", savedViolation.getId());
+                File pdfFile = generateViolationPDF(savedViolation);
+                sendApprovalEmail(savedViolation, pdfFile);
+                Files.deleteIfExists(pdfFile.toPath());
+                logger.info("Email sent and PDF deleted successfully for violation ID: {}", savedViolation.getId());
+            } catch (Exception e) {
+                logger.error("Error generating PDF or sending email for violation ID: {}: {}", savedViolation.getId(), e.getMessage(), e);
+                throw new RuntimeException("Failed to send approval email: " + e.getMessage(), e);
+            }
+        }
+
         return toDTO(savedViolation);
+    }
+
+    private File generateViolationPDF(Violation violation) throws IOException {
+        logger.info("Starting PDF generation for violation ID: {}", violation.getId());
+        File pdfFile = File.createTempFile("violation_" + violation.getId(), ".pdf");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String formattedDate = violation.getCreatedAt().format(formatter);
+        String issuedDate = formatter.format(LocalDateTime.now());
+
+        // Create HTML content for PDF
+        StringBuilder htmlContent = new StringBuilder();
+        htmlContent.append("<!DOCTYPE html>")
+                .append("<html><head>")
+                .append("<meta charset='UTF-8'>")
+                .append("<style>")
+                .append("body { font-family: Arial, sans-serif; margin: 40px; }")
+                .append("h1 { color: #005555; text-align: center; }")
+                .append("h2 { color: #007777; }")
+                .append("table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }")
+                .append("th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }")
+                .append("th { background-color: #f2f2f2; font-weight: bold; }")
+                .append("img { max-width: 300px; height: auto; margin: 10px 0; }")
+                .append(".footer { text-align: center; font-size: 12px; color: #005555; }")
+                .append("</style>")
+                .append("</head><body>");
+
+        // Title
+        htmlContent.append("<h1>Violation Report</h1>")
+                .append("<p style='text-align: center;'>Issued Date: ").append(issuedDate).append("</p>");
+
+        // General Information
+        htmlContent.append("<h2>General Information</h2>")
+                .append("<table>")
+                .append("<tr><th>Violation ID</th><td>").append(violation.getId()).append("</td></tr>")
+                .append("<tr><th>License Plate</th><td>").append(violation.getVehicle().getLicensePlate()).append("</td></tr>")
+                .append("<tr><th>Owner</th><td>").append(violation.getVehicle().getUser().getFullName()).append("</td></tr>")
+                .append("<tr><th>Vehicle Type</th><td>").append(violation.getVehicleType() != null ? violation.getVehicleType().getTypeName() : "Not specified").append("</td></tr>")
+                .append("<tr><th>Camera Location</th><td>").append(violation.getCamera().getLocation()).append("</td></tr>")
+                .append("<tr><th>Violation Date</th><td>").append(formattedDate).append("</td></tr>")
+                .append("<tr><th>Status</th><td>Approved</td></tr>")
+                .append("</table>");
+
+        // Violation Details
+        htmlContent.append("<h2>Violation Details</h2>");
+        if (violation.getViolationDetails() != null && !violation.getViolationDetails().isEmpty()) {
+            for (ViolationDetail detail : violation.getViolationDetails()) {
+                String violationType = detail.getViolationType() != null ? detail.getViolationType().getTypeName() : "Not specified";
+                String imageUrl = detail.getImageUrl() != null ? detail.getImageUrl() : "Not available";
+                String videoUrl = detail.getVideoUrl() != null ? detail.getVideoUrl() : "Not available";
+                String location = detail.getLocation() != null ? detail.getLocation() : violation.getCamera().getLocation();
+                String violationTime = detail.getViolationTime() != null ? detail.getViolationTime().format(formatter) : formattedDate;
+                String speed = detail.getSpeed() != null ? detail.getSpeed() + " km/h" : "Not specified";
+                String additionalNotes = detail.getAdditionalNotes() != null ? detail.getAdditionalNotes() : "None";
+                String createdAt = detail.getCreatedAt() != null ? detail.getCreatedAt().format(formatter) : "Not specified";
+                String licensePlate = detail.getLicensePlate() != null ? detail.getLicensePlate() : violation.getVehicle().getLicensePlate();
+
+                htmlContent.append("<table>")
+                        .append("<tr><th>Detail ID</th><td>").append(detail.getId()).append("</td></tr>")
+                        .append("<tr><th>Violation Type</th><td>").append(violationType).append("</td></tr>")
+                        .append("<tr><th>Image URL</th><td>").append(imageUrl).append("</td></tr>");
+                if (detail.getImageUrl() != null && !detail.getImageUrl().isEmpty()) {
+                    htmlContent.append("<tr><th>Image</th><td><img src='").append(detail.getImageUrl()).append("' alt='Violation Image'></td></tr>");
+                }
+                htmlContent.append("<tr><th>Video URL</th><td>").append(videoUrl).append("</td></tr>")
+                        .append("<tr><th>Location</th><td>").append(location).append("</td></tr>")
+                        .append("<tr><th>Violation Time</th><td>").append(violationTime).append("</td></tr>")
+                        .append("<tr><th>Speed</th><td>").append(speed).append("</td></tr>")
+                        .append("<tr><th>Additional Notes</th><td>").append(additionalNotes).append("</td></tr>")
+                        .append("<tr><th>Created At</th><td>").append(createdAt).append("</td></tr>")
+                        .append("<tr><th>License Plate</th><td>").append(licensePlate).append("</td></tr>")
+                        .append("</table>");
+            }
+        } else {
+            htmlContent.append("<p>No violation details available</p>");
+        }
+
+        // Contact Information
+        htmlContent.append("<h2>Contact Information</h2>")
+                .append("<table>")
+                .append("<tr><th>Email</th><td>support@violationmanagement.com</td></tr>")
+                .append("<tr><th>Phone</th><td>+84-123-456-789</td></tr>")
+                .append("<tr><th>Website</th><td>www.violationmanagement.com</td></tr>")
+                .append("</table>")
+                .append("<p>Please contact our support team within 7 days for any inquiries or complaints.</p>");
+
+        // Footer
+        htmlContent.append("<p class='footer'>Violation Management System -- Committed to Road Safety and Compliance</p>")
+                .append("</body></html>");
+
+        // Call PDFShift API
+        try {
+            URL url = new URL("https://api.pdfshift.io/v3/convert/pdf");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString(("api:" + pdfShiftApiKey).getBytes(StandardCharsets.UTF_8)));
+            connection.setDoOutput(true);
+
+            String jsonInput = "{\"source\": \"" + htmlContent.toString().replace("\n", "").replace("\"", "\\\"") + "\", \"sandbox\": false}";
+            try (FileOutputStream outputStream = new FileOutputStream(pdfFile)) {
+                connection.getOutputStream().write(jsonInput.getBytes(StandardCharsets.UTF_8));
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    try (InputStream inputStream = connection.getInputStream()) {
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = inputStream.read(buffer)) != -1) {
+                            outputStream.write(buffer, 0, bytesRead);
+                        }
+                    }
+                    logger.info("PDF generated successfully for violation ID: {}", violation.getId());
+                } else {
+                    logger.error("PDFShift API call failed with response code: {}", responseCode);
+                    throw new IOException("PDFShift API call failed with response code: " + responseCode);
+                }
+            } finally {
+                connection.disconnect();
+            }
+            return pdfFile;
+        } catch (IOException e) {
+            logger.error("Error generating PDF for violation ID: {}: {}", violation.getId(), e.getMessage(), e);
+            throw new IOException("Failed to generate PDF: " + e.getMessage(), e);
+        }
+    }
+
+    private void sendApprovalEmail(Violation violation, File pdfAttachment) throws MessagingException {
+        logger.info("Preparing to send email for violation ID: {}", violation.getId());
+        if (violation.getVehicle() == null || violation.getVehicle().getUser() == null || violation.getVehicle().getUser().getEmail() == null) {
+            logger.error("Cannot send email for violation ID: {}: Vehicle or user email is missing", violation.getId());
+            throw new IllegalStateException("Cannot send email: Vehicle or user email is missing");
+        }
+
+        String userEmail = violation.getVehicle().getUser().getEmail();
+        String fullName = violation.getVehicle().getUser().getFullName() != null ? violation.getVehicle().getUser().getFullName() : "User";
+        String licensePlate = violation.getVehicle().getLicensePlate();
+        String location = violation.getCamera() != null ? violation.getCamera().getLocation() : "Not specified";
+        String violationType = violation.getViolationDetails() != null && !violation.getViolationDetails().isEmpty()
+                ? violation.getViolationDetails().get(0).getViolationType() != null
+                ? violation.getViolationDetails().get(0).getViolationType().getTypeName() : "Not specified"
+                : "Not specified";
+
+        String subject = "Traffic Violation Approval Notification";
+
+        String content = String.format(
+                "Dear %s,\n\n" +
+                        "We are writing to inform you that a traffic violation associated with your vehicle has been recorded and approved. Below are the details:\n\n" +
+                        "- Violation ID: %d\n" +
+                        "- License Plate: %s\n" +
+                        "- Violation Type: %s\n" +
+                        "- Location: %s\n" +
+                        "- Status: Approved\n\n" +
+                        "A detailed violation report is attached as a PDF for your reference. If you have any questions or wish to file a complaint, please contact our support team at support@violationmanagement.com or +84-123-456-789 within 7 days.\n\n" +
+                        "Sincerely,\n" +
+                        "Violation Management System\n" +
+                        "Ensuring Compliance and Safety",
+                fullName, violation.getId(), licensePlate, violationType, location
+        );
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setTo(userEmail);
+            helper.setSubject(subject);
+            helper.setText(content);
+            helper.addAttachment("Violation_Report_" + violation.getId() + ".pdf", pdfAttachment);
+            mailSender.send(mimeMessage);
+            logger.info("Email sent successfully to {} for violation ID: {}", userEmail, violation.getId());
+        } catch (MessagingException e) {
+            logger.error("Error sending email for violation ID: {} to {}: {}", violation.getId(), userEmail, e.getMessage(), e);
+            throw new MessagingException("Failed to send email: " + e.getMessage(), e);
+        }
     }
 
     private ViolationsDTO toDTO(Violation violation) {

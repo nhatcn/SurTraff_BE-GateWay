@@ -7,6 +7,8 @@ import com.example.demo.model.ViolationType;
 import com.example.demo.service.ViolationService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +19,64 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// Lớp phản hồi lỗi
+class ErrorResponse {
+    private String message;
+
+    public ErrorResponse(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+}
+
 @RestController
 @RequestMapping("/api/violations")
 public class ViolationController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ViolationController.class);
+
     @Autowired
     private ViolationService violationService;
 
+    // Các phương thức khác giữ nguyên, chỉ cập nhật updateViolationStatus
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> updateViolationStatus(@PathVariable Long id, @RequestParam String status) {
+        logger.info("Nhận yêu cầu cập nhật trạng thái cho vi phạm ID: {}, status: '{}'", id, status);
+        try {
+            // Làm sạch status
+            if (status == null || status.trim().isEmpty()) {
+                logger.warn("Trạng thái rỗng hoặc null cho vi phạm ID: {}", id);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ErrorResponse("Trạng thái không được để trống."));
+            }
+            String cleanedStatus = status.trim();
+            ViolationsDTO updatedViolation = violationService.updateViolationStatus(id, cleanedStatus);
+            logger.info("Cập nhật trạng thái thành công cho vi phạm ID: {}", id);
+            return ResponseEntity.ok(updatedViolation);
+        } catch (EntityNotFoundException e) {
+            logger.error("Không tìm thấy vi phạm ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("Không tìm thấy vi phạm với ID: " + id));
+        } catch (IllegalArgumentException e) {
+            logger.warn("Trạng thái không hợp lệ cho vi phạm ID: {}, lỗi: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Lỗi không xác định khi cập nhật trạng thái vi phạm ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Lỗi không xác định: " + e.getMessage()));
+        }
+    }
+
+    // Các phương thức khác như getAllViolations, getViolationById, v.v. giữ nguyên
     @GetMapping
     public ResponseEntity<List<ViolationsDTO>> getAllViolations() {
         try {
@@ -136,7 +189,7 @@ public class ViolationController {
             List<VehicleType> vehicleTypes = violationService.getAllVehicleTypes();
             return ResponseEntity.ok(vehicleTypes);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(null);
         }
     }
@@ -258,19 +311,6 @@ public class ViolationController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(null);
-        }
-    }
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<ViolationsDTO> updateViolationStatus(@PathVariable Long id, @RequestBody String status) {
-        try {
-            ViolationsDTO updatedViolation = violationService.updateViolationStatus(id, status);
-            return ResponseEntity.ok(updatedViolation);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
