@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -75,4 +76,19 @@ public class AccidentController {
         return ResponseEntity.ok(accidentService.rejectAccident(id));
     }
 
+    @PostMapping(value = "/add")
+    public ResponseEntity<AccidentDTO> addAccident(
+            @RequestPart("accident") AccidentDTO accidentDTO,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
+            @RequestPart(value = "videoFile", required = false) MultipartFile videoFile) {
+        try {
+            AccidentDTO savedAccident = accidentService.addAccident(accidentDTO, imageFile, videoFile);
+            return ResponseEntity.ok(savedAccident);
+        } catch (Exception e) {
+            // Nên log lỗi ở đây để biết chi tiết
+            System.err.println("Error in addAccident controller: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }
