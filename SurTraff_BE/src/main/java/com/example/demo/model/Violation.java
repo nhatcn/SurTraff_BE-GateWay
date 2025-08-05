@@ -37,4 +37,7 @@ public class Violation {
 
     private String status;
 
+    @Column(name = "is_delete")
+    private Boolean isDelete = false; // Added to match boolean is_delete
+
 }

@@ -33,11 +33,18 @@ public class Vehicle {
     private String color;
     private String brand;
 
-    @Column(updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "image")
+    private String image;
+
+    @Column(name = "is_delete", columnDefinition = "boolean default false")
+    private Boolean isDelete;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        this.isDelete = false; // Set default value
     }
 }
