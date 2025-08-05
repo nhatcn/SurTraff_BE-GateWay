@@ -11,11 +11,12 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ViolationsDTO {
-    private Long id;
+    private Integer id; // Changed to Integer to match database
     private CameraDTO camera;
     private VehicleType vehicleType;
     private VehicleDTO vehicle;
     private LocalDateTime createdAt;
     private List<ViolationDetailDTO> violationDetails;
-    private String status;
+    private String status; // Should match varchar(50) if needed, but length is not enforced in DTO
+    private Boolean isDelete; // Added to match database structure
 }

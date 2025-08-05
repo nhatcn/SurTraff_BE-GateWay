@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 // Lớp phản hồi lỗi
 class ErrorResponse {
@@ -45,46 +44,14 @@ public class ViolationController {
     @Autowired
     private ViolationService violationService;
 
-    // Các phương thức khác giữ nguyên, chỉ cập nhật updateViolationStatus
-
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<?> updateViolationStatus(@PathVariable Long id, @RequestParam String status) {
-        logger.info("Nhận yêu cầu cập nhật trạng thái cho vi phạm ID: {}, status: '{}'", id, status);
-        try {
-            // Làm sạch status
-            if (status == null || status.trim().isEmpty()) {
-                logger.warn("Trạng thái rỗng hoặc null cho vi phạm ID: {}", id);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ErrorResponse("Trạng thái không được để trống."));
-            }
-            String cleanedStatus = status.trim();
-            ViolationsDTO updatedViolation = violationService.updateViolationStatus(id, cleanedStatus);
-            logger.info("Cập nhật trạng thái thành công cho vi phạm ID: {}", id);
-            return ResponseEntity.ok(updatedViolation);
-        } catch (EntityNotFoundException e) {
-            logger.error("Không tìm thấy vi phạm ID: {}", id, e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("Không tìm thấy vi phạm với ID: " + id));
-        } catch (IllegalArgumentException e) {
-            logger.warn("Trạng thái không hợp lệ cho vi phạm ID: {}, lỗi: {}", id, e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(e.getMessage()));
-        } catch (Exception e) {
-            logger.error("Lỗi không xác định khi cập nhật trạng thái vi phạm ID: {}", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("Lỗi không xác định: " + e.getMessage()));
-        }
-    }
-
-    // Các phương thức khác như getAllViolations, getViolationById, v.v. giữ nguyên
     @GetMapping
     public ResponseEntity<List<ViolationsDTO>> getAllViolations() {
         try {
             List<ViolationsDTO> violations = violationService.getAllViolations();
             return ResponseEntity.ok(violations);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            logger.error("Error fetching all violations: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -94,8 +61,10 @@ public class ViolationController {
             ViolationsDTO violation = violationService.getViolationById(id);
             return violation != null ? ResponseEntity.ok(violation) : ResponseEntity.notFound().build();
         } catch (EntityNotFoundException e) {
+            logger.error("Violation not found with ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
+            logger.error("Error fetching violation ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -106,11 +75,11 @@ public class ViolationController {
             List<ViolationsDTO> history = violationService.getViolationHistory(licensePlate);
             return ResponseEntity.ok(history);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(null);
+            logger.warn("Invalid license plate: {}", licensePlate, e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            logger.error("Error fetching violation history for license plate: {}", licensePlate, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -122,12 +91,16 @@ public class ViolationController {
             @RequestPart(value = "videoFile", required = false) MultipartFile videoFile) {
         try {
             ViolationsDTO createdViolation = violationService.createViolationNhat(dto, imageFile, videoFile);
+            logger.info("Created violation with ID: {}", createdViolation.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(createdViolation);
         } catch (IllegalArgumentException e) {
+            logger.warn("Invalid input for creating violation: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (IOException e) {
+            logger.error("IO error while creating violation: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         } catch (Exception e) {
+            logger.error("Error creating violation: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
@@ -138,8 +111,10 @@ public class ViolationController {
             List<ViolationsDTO> violations = violationService.getAllViolationsByUserId(userId);
             return ResponseEntity.ok(violations);
         } catch (EntityNotFoundException e) {
+            logger.error("User not found with ID: {}", userId, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
+            logger.error("Error fetching violations for user ID: {}", userId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -148,13 +123,16 @@ public class ViolationController {
     public ResponseEntity<ViolationsDTO> updateViolation(@PathVariable Long id, @Valid @RequestBody ViolationsDTO dto) {
         try {
             ViolationsDTO updatedViolation = violationService.updateViolation(id, dto);
+            logger.info("Updated violation with ID: {}", id);
             return ResponseEntity.ok(updatedViolation);
         } catch (EntityNotFoundException e) {
+            logger.error("Violation not found with ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(null);
+            logger.warn("Invalid input for updating violation ID: {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (Exception e) {
+            logger.error("Error updating violation ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -164,10 +142,13 @@ public class ViolationController {
     public ResponseEntity<Void> deleteViolation(@PathVariable Long id) {
         try {
             violationService.deleteViolation(id);
+            logger.info("Deleted violation with ID: {}", id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (EntityNotFoundException e) {
+            logger.error("Violation not found with ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
+            logger.error("Error deleting violation ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -178,8 +159,8 @@ public class ViolationController {
             List<ViolationType> violationTypes = violationService.getAllViolationTypes();
             return ResponseEntity.ok(violationTypes);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            logger.error("Error fetching violation types: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -189,8 +170,8 @@ public class ViolationController {
             List<VehicleType> vehicleTypes = violationService.getAllVehicleTypes();
             return ResponseEntity.ok(vehicleTypes);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(null);
+            logger.error("Error fetching vehicle types: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -199,13 +180,14 @@ public class ViolationController {
     public ResponseEntity<ViolationType> createViolationType(@Valid @RequestBody ViolationType violationType) {
         try {
             ViolationType createdType = violationService.createViolationType(violationType);
+            logger.info("Created violation type with ID: {}", createdType.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(createdType);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(null);
+            logger.warn("Invalid input for creating violation type: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            logger.error("Error creating violation type: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -213,15 +195,17 @@ public class ViolationController {
     public ResponseEntity<ViolationType> updateViolationType(@PathVariable Long id, @Valid @RequestBody ViolationType violationType) {
         try {
             ViolationType updatedType = violationService.updateViolationType(id, violationType);
+            logger.info("Updated violation type with ID: {}", id);
             return ResponseEntity.ok(updatedType);
         } catch (EntityNotFoundException e) {
+            logger.error("Violation type not found with ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(null);
+            logger.warn("Invalid input for updating violation type ID: {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            logger.error("Error updating violation type ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -234,18 +218,20 @@ public class ViolationController {
             @RequestPart(value = "videoFile", required = false) MultipartFile videoFile) {
         try {
             ViolationDetailDTO createdDetail = violationService.addViolationDetail(id, dto, imageFile, videoFile);
+            logger.info("Added violation detail for violation ID: {}", id);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdDetail);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            logger.error("IO error adding violation detail for violation ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         } catch (EntityNotFoundException e) {
+            logger.error("Violation not found with ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(null);
+            logger.warn("Invalid input for adding violation detail for violation ID: {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            logger.error("Error adding violation detail for violation ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -257,18 +243,20 @@ public class ViolationController {
             @RequestPart(value = "videoFile", required = false) MultipartFile videoFile) {
         try {
             ViolationDetailDTO updatedDetail = violationService.updateViolationDetail(detailId, dto, imageFile, videoFile);
+            logger.info("Updated violation detail with ID: {}", detailId);
             return ResponseEntity.ok(updatedDetail);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            logger.error("IO error updating violation detail ID: {}", detailId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         } catch (EntityNotFoundException e) {
+            logger.error("Violation detail not found with ID: {}", detailId, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(null);
+            logger.warn("Invalid input for updating violation detail ID: {}: {}", detailId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+            logger.error("Error updating violation detail ID: {}", detailId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -277,10 +265,13 @@ public class ViolationController {
     public ResponseEntity<Void> deleteViolationDetail(@PathVariable Long detailId) {
         try {
             violationService.deleteViolationDetail(detailId);
+            logger.info("Deleted violation detail with ID: {}", detailId);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (EntityNotFoundException e) {
+            logger.error("Violation detail not found with ID: {}", detailId, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
+            logger.error("Error deleting violation detail ID: {}", detailId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -291,26 +282,102 @@ public class ViolationController {
             List<ViolationsDTO> violations = violationService.getViolationsByLicensePlate(licensePlate);
             return ResponseEntity.ok(violations);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(null);
+            logger.warn("Invalid license plate: {}", licensePlate, e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (EntityNotFoundException e) {
+            logger.error("No violations found for license plate: {}", licensePlate, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
+            logger.error("Error fetching violations for license plate: {}", licensePlate, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<ViolationsDTO>> getViolationsByStatus(@PathVariable String status) {
+    @PostMapping("/{id}/request")
+    public ResponseEntity<ViolationsDTO> requestViolation(@PathVariable Long id) {
+        logger.info("Received request for violation ID: {}", id);
         try {
-            List<ViolationsDTO> allViolations = violationService.getAllViolations();
-            List<ViolationsDTO> filteredViolations = allViolations.stream()
-                    .filter(v -> v.getStatus() != null && v.getStatus().equalsIgnoreCase(status))
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok(filteredViolations);
+            ViolationsDTO updatedViolation = violationService.requestViolation(id);
+            logger.info("Violation ID: {} status updated to REQUESTED", id);
+            return ResponseEntity.ok(updatedViolation);
+        } catch (EntityNotFoundException e) {
+            logger.error("Violation not found with ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ViolationsDTO());
+        } catch (IllegalArgumentException e) {
+            logger.warn("Invalid input for requesting violation ID: {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ViolationsDTO());
         } catch (Exception e) {
+            logger.error("Error requesting violation ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+                    .body(new ViolationsDTO());
+        }
+    }
+
+    @PostMapping("/{id}/process")
+    public ResponseEntity<ViolationsDTO> processViolation(@PathVariable Long id) {
+        logger.info("Received process request for violation ID: {}", id);
+        try {
+            ViolationsDTO updatedViolation = violationService.processViolation(id);
+            logger.info("Violation ID: {} status updated to PROCESSED", id);
+            return ResponseEntity.ok(updatedViolation);
+        } catch (EntityNotFoundException e) {
+            logger.error("Violation not found with ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ViolationsDTO());
+        } catch (IllegalArgumentException e) {
+            logger.warn("Invalid input for processing violation ID: {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ViolationsDTO());
+        } catch (Exception e) {
+            logger.error("Error processing violation ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ViolationsDTO());
+        }
+    }
+
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<ViolationsDTO> approveViolation(@PathVariable Long id) {
+        logger.info("Received approve request for violation ID: {}", id);
+        try {
+            ViolationsDTO updatedViolation = violationService.approveViolation(id);
+            logger.info("Violation ID: {} status updated to APPROVED", id);
+            return ResponseEntity.ok(updatedViolation);
+        } catch (EntityNotFoundException e) {
+            logger.error("Violation not found with ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ViolationsDTO());
+        } catch (IllegalArgumentException e) {
+            logger.warn("Invalid input for approving violation ID: {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ViolationsDTO());
+        } catch (Exception e) {
+            logger.error("Error approving violation ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ViolationsDTO());
+        }
+    }
+
+    @PostMapping("/{id}/reject")
+    public ResponseEntity<ViolationsDTO> rejectViolation(@PathVariable Long id) {
+        logger.info("Received reject request for violation ID: {}", id);
+        try {
+            ViolationsDTO updatedViolation = violationService.rejectViolation(id);
+            logger.info("Violation ID: {} status updated to REJECTED", id);
+            return ResponseEntity.ok(updatedViolation);
+        } catch (EntityNotFoundException e) {
+            logger.error("Violation not found with ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ViolationsDTO());
+        } catch (IllegalArgumentException e) {
+            logger.warn("Invalid input for rejecting violation ID: {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ViolationsDTO());
+        } catch (Exception e) {
+            logger.error("Error rejecting violation ID: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ViolationsDTO());
         }
     }
 }

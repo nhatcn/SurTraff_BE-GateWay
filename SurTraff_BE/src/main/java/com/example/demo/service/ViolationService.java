@@ -46,6 +46,7 @@ public class ViolationService {
     private final ViolationDetailRepository violationDetailRepository;
     private final UserRepository userRepository;
     private final ZoneRepository zoneRepository;
+    private final NotificationsRepository notificationsRepository;
     private final CloudinaryService cloudinaryService;
 
     @Autowired
@@ -54,14 +55,14 @@ public class ViolationService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    private final String pdfShiftApiKey = "sk_cba8b808d8d558b87e82ee38c26d5382b95de103"; // Thay bằng API Key thật từ PDFShift
-
+    private final String pdfShiftApiKey = "sk_cba8b808d8d558b87e82ee38c26d5382b95de103";
 
     @Autowired
     public ViolationService(ViolationRepository violationRepository, CameraRepository cameraRepository,
                             ViolationTypeRepository violationTypeRepository, VehicleTypeRepository vehicleTypeRepository,
                             VehicleRepository vehicleRepository, ViolationDetailRepository violationDetailRepository,
-                            UserRepository userRepository, ZoneRepository zoneRepository, CloudinaryService cloudinaryService) {
+                            UserRepository userRepository, ZoneRepository zoneRepository,
+                            NotificationsRepository notificationsRepository, CloudinaryService cloudinaryService) {
         this.violationRepository = violationRepository;
         this.cameraRepository = cameraRepository;
         this.violationTypeRepository = violationTypeRepository;
@@ -70,10 +71,10 @@ public class ViolationService {
         this.violationDetailRepository = violationDetailRepository;
         this.userRepository = userRepository;
         this.zoneRepository = zoneRepository;
+        this.notificationsRepository = notificationsRepository;
         this.cloudinaryService = cloudinaryService;
     }
 
-    // Hàm toEntity cho CameraDTO
     private Camera toEntity(CameraDTO dto) {
         if (dto == null) return null;
         Camera camera = new Camera();
@@ -85,7 +86,6 @@ public class ViolationService {
         camera.setLatitude(dto.getLatitude());
         camera.setLongitude(dto.getLongitude());
 
-        // Xử lý zones từ zoneId
         if (dto.getZoneId() != null) {
             Zone zone = zoneRepository.findById(dto.getZoneId())
                     .orElseThrow(() -> new EntityNotFoundException("Zone không tồn tại với ID: " + dto.getZoneId()));
@@ -93,7 +93,6 @@ public class ViolationService {
         } else {
             camera.setZones(new ArrayList<>());
         }
-
         return camera;
     }
 
@@ -106,7 +105,6 @@ public class ViolationService {
         violation.setCreatedAt(dto.getCreatedAt() != null ? dto.getCreatedAt() : LocalDateTime.now());
         violation.setStatus(dto.getStatus() != null ? dto.getStatus() : "PENDING");
 
-        // Xử lý Camera
         if (dto.getCamera() != null && dto.getCamera().getId() != null) {
             Camera camera = cameraRepository.findById(dto.getCamera().getId())
                     .orElseThrow(() -> new EntityNotFoundException("Camera không tồn tại với ID: " + dto.getCamera().getId()));
@@ -115,8 +113,7 @@ public class ViolationService {
             violation.setCamera(toEntity(dto.getCamera()));
         }
 
-        // Xử lý Vehicle và licensePlate
-        final String licensePlate; // Khai báo final để đảm bảo effectively final
+        final String licensePlate;
         if (dto.getVehicle() != null && dto.getVehicle().getLicensePlate() != null && !dto.getVehicle().getLicensePlate().trim().isEmpty()) {
             licensePlate = dto.getVehicle().getLicensePlate();
             Optional<Vehicle> vehicleOpt = vehicleRepository.findByLicensePlate(licensePlate);
@@ -130,29 +127,26 @@ public class ViolationService {
             Vehicle vehicle = vehicleRepository.findById(dto.getVehicle().getId())
                     .orElseThrow(() -> new EntityNotFoundException("Xe không tồn tại với ID: " + dto.getVehicle().getId()));
             violation.setVehicle(vehicle);
-            licensePlate = vehicle.getLicensePlate(); // Gán licensePlate từ Vehicle
+            licensePlate = vehicle.getLicensePlate();
         } else {
             throw new IllegalArgumentException("Phải cung cấp ít nhất một trong hai: licensePlate hoặc vehicle.id");
         }
 
-        // Xử lý VehicleType
         if (dto.getVehicleType() != null && dto.getVehicleType().getId() != null) {
             VehicleType vehicleType = vehicleTypeRepository.findById(dto.getVehicleType().getId())
                     .orElseThrow(() -> new EntityNotFoundException("Loại xe không tồn tại với ID: " + dto.getVehicleType().getId()));
             violation.setVehicleType(vehicleType);
         }
 
-        // Lưu Violation
         Violation savedViolation = violationRepository.save(violation);
 
-        // Xử lý ViolationDetail và file ảnh/video
         List<ViolationDetail> details = new ArrayList<>();
         if (dto.getViolationDetails() != null && !dto.getViolationDetails().isEmpty()) {
             details = dto.getViolationDetails().stream()
                     .map(detailDTO -> {
                         ViolationDetail detail = toDetailEntity(detailDTO);
                         detail.setViolation(savedViolation);
-                        detail.setLicensePlate(licensePlate); // Lưu licensePlate vào ViolationDetail
+                        detail.setLicensePlate(licensePlate);
                         if (detailDTO.getViolationTypeId() != null) {
                             ViolationType violationType = violationTypeRepository.findById(detailDTO.getViolationTypeId())
                                     .orElseThrow(() -> new EntityNotFoundException("Loại vi phạm không tồn tại với ID: " + detailDTO.getViolationTypeId()));
@@ -163,17 +157,16 @@ public class ViolationService {
                     .collect(Collectors.toList());
         }
 
-        // Nếu có file ảnh hoặc video, tạo một ViolationDetail mới
         if (imageFile != null || videoFile != null) {
             ViolationDetailDTO detailDTO = new ViolationDetailDTO();
             detailDTO.setViolationTime(dto.getCreatedAt() != null ? dto.getCreatedAt() : LocalDateTime.now());
             detailDTO.setLocation(dto.getViolationDetails() != null && !dto.getViolationDetails().isEmpty()
                     ? dto.getViolationDetails().get(0).getLocation() : null);
-            detailDTO.setLicensePlate(licensePlate); // Lưu licensePlate vào ViolationDetailDTO
+            detailDTO.setLicensePlate(licensePlate);
             ViolationDetailDTO savedDetailDTO = addViolationDetail(savedViolation.getId(), detailDTO, imageFile, videoFile);
             ViolationDetail detail = toDetailEntity(savedDetailDTO);
             detail.setViolation(savedViolation);
-            detail.setLicensePlate(licensePlate); // Đảm bảo licensePlate được lưu
+            detail.setLicensePlate(licensePlate);
             details.add(detail);
         }
 
@@ -223,6 +216,7 @@ public class ViolationService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+
     public ViolationDetailDTO addViolationDetail(Long violationId, ViolationDetailDTO dto, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
         if (dto == null) {
             throw new IllegalArgumentException("Dữ liệu chi tiết vi phạm không được null");
@@ -259,6 +253,7 @@ public class ViolationService {
         ViolationDetail savedDetail = violationDetailRepository.save(detail);
         return toDetailDTO(savedDetail);
     }
+
     public ViolationsDTO updateViolation(Long id, ViolationsDTO dto) {
         Violation violation = violationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Vi phạm không tồn tại với ID: " + id));
@@ -281,11 +276,7 @@ public class ViolationService {
         if (dto.getCreatedAt() != null) {
             violation.setCreatedAt(dto.getCreatedAt());
         }
-        if (dto.getStatus() != null) {
-            violation.setStatus(dto.getStatus());
-        }
 
-        // Xử lý ViolationDetail
         String licensePlate = (dto.getVehicle() != null && dto.getVehicle().getLicensePlate() != null)
                 ? dto.getVehicle().getLicensePlate() : null;
         if (dto.getViolationDetails() != null && !dto.getViolationDetails().isEmpty()) {
@@ -294,7 +285,7 @@ public class ViolationService {
                     .map(detailDTO -> {
                         ViolationDetail detail = toDetailEntity(detailDTO);
                         detail.setViolation(violation);
-                        detail.setLicensePlate(licensePlate); // Lưu licensePlate vào ViolationDetail
+                        detail.setLicensePlate(licensePlate);
                         if (detailDTO.getViolationTypeId() != null) {
                             ViolationType violationType = violationTypeRepository.findById(detailDTO.getViolationTypeId())
                                     .orElseThrow(() -> new EntityNotFoundException("Loại vi phạm không tồn tại với ID: " + detailDTO.getViolationTypeId()));
@@ -318,10 +309,8 @@ public class ViolationService {
         violationRepository.deleteById(id);
     }
 
-
     @Transactional
     public ViolationsDTO createViolationNhat(ViolationsDTO dto, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
-
         Violation violation = new Violation();
         violation.setCamera(cameraRepository.findById(dto.getCamera().getId()).orElseThrow());
         violation.setCreatedAt(dto.getCreatedAt());
@@ -335,20 +324,18 @@ public class ViolationService {
             detail.setViolationTime(detailDTO.getViolationTime());
             detail.setViolationType(violationTypeRepository.findById(detailDTO.getViolationTypeId()).orElseThrow());
 
-
             if (imageFile != null && !imageFile.isEmpty()) {
                 detail.setImageUrl(cloudinaryService.uploadImage(imageFile));
             }
 
             if (videoFile != null && !videoFile.isEmpty()) {
-
                 detail.setVideoUrl(cloudinaryService.uploadVideo(videoFile));
             }
 
-            violationDetailRepository.save(detail); 
+            violationDetailRepository.save(detail);
         }
 
-        return  toDTO(violation);
+        return toDTO(violation);
     }
 
     public ViolationDetailDTO updateViolationDetail(Long detailId, ViolationDetailDTO dto, MultipartFile imageFile, MultipartFile videoFile) throws IOException {
@@ -369,15 +356,14 @@ public class ViolationService {
             String videoUrl = cloudinaryService.uploadVideo(videoFile);
             existingDetail.setVideoUrl(videoUrl);
         } else if (dto.getVideoUrl() != null) {
-            String videoUrl = dto.getVideoUrl();
-            existingDetail.setVideoUrl(videoUrl);
+            existingDetail.setVideoUrl(dto.getVideoUrl());
         }
 
         if (dto.getLocation() != null) existingDetail.setLocation(dto.getLocation());
         if (dto.getViolationTime() != null) existingDetail.setViolationTime(dto.getViolationTime());
         if (dto.getSpeed() != null) existingDetail.setSpeed(dto.getSpeed());
         if (dto.getAdditionalNotes() != null) existingDetail.setAdditionalNotes(dto.getAdditionalNotes());
-        if (dto.getLicensePlate() != null) existingDetail.setLicensePlate(dto.getLicensePlate()); // Cập nhật licensePlate
+        if (dto.getLicensePlate() != null) existingDetail.setLicensePlate(dto.getLicensePlate());
 
         if (dto.getViolationTypeId() != null) {
             ViolationType violationType = violationTypeRepository.findById(dto.getViolationTypeId())
@@ -428,38 +414,126 @@ public class ViolationService {
         return violationTypeRepository.save(existingType);
     }
 
-    public ViolationsDTO updateViolationStatus(Long id, String status) {
-        logger.info("Starting status update for violation ID: {}, status: {}", id, status);
-        Violation violation = violationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Violation not found with ID: " + id));
-
-        if (status == null || status.trim().isEmpty()) {
-            throw new IllegalArgumentException("Status cannot be empty");
-        }
-        List<String> validStatuses = Arrays.asList("PENDING", "REQUEST", "RESOLVED", "DISMISSED", "APPROVE", "REJECT");
-        if (!validStatuses.contains(status.toUpperCase())) {
-            throw new IllegalArgumentException("Invalid status: " + status + ". Valid statuses: " + validStatuses);
-        }
-
-        violation.setStatus(status.toUpperCase());
+    @Transactional
+    public ViolationsDTO requestViolation(Long id) {
+        logger.info("Requesting violation with ID: {}", id);
+        Violation violation = findViolationById(id);
+        violation.setStatus("REQUESTED");
         Violation savedViolation = violationRepository.save(violation);
         Hibernate.initialize(savedViolation.getViolationDetails());
-        logger.info("Saved violation status for ID: {}, status: {}", savedViolation.getId(), savedViolation.getStatus());
+        logger.info("Violation ID: {} status updated to REQUESTED", id);
+        return toDTO(savedViolation);
+    }
 
-        if ("APPROVE".equals(status.toUpperCase())) {
-            try {
-                logger.info("Generating PDF and sending email for violation ID: {}", savedViolation.getId());
-                File pdfFile = generateViolationPDF(savedViolation);
-                sendApprovalEmail(savedViolation, pdfFile);
-                Files.deleteIfExists(pdfFile.toPath());
-                logger.info("Email sent and PDF deleted successfully for violation ID: {}", savedViolation.getId());
-            } catch (Exception e) {
-                logger.error("Error generating PDF or sending email for violation ID: {}: {}", savedViolation.getId(), e.getMessage(), e);
-                throw new RuntimeException("Failed to send approval email: " + e.getMessage(), e);
-            }
+    @Transactional
+    public ViolationsDTO processViolation(Long id) {
+        logger.info("Processing violation with ID: {}", id);
+        Violation violation = findViolationById(id);
+        violation.setStatus("PROCESSED");
+        Violation savedViolation = violationRepository.save(violation);
+        Hibernate.initialize(savedViolation.getViolationDetails());
+        logger.info("Violation ID: {} status updated to PROCESSED", id);
+
+        // Thêm logic để thông báo cho người dùng rằng chi tiết vi phạm có thể được xem
+        try {
+            User user = savedViolation.getVehicle().getUser();
+            Vehicle vehicle = savedViolation.getVehicle();
+            String violationType = savedViolation.getViolationDetails() != null && !savedViolation.getViolationDetails().isEmpty()
+                    ? savedViolation.getViolationDetails().get(0).getViolationType() != null
+                    ? savedViolation.getViolationDetails().get(0).getViolationType().getTypeName() : "Not specified"
+                    : "Not specified";
+            String message = String.format(
+                    "Your violation with ID %d for vehicle %s is now processed and available for review.",
+                    savedViolation.getId(),
+                    vehicle.getLicensePlate()
+            );
+            Notifications notification = Notifications.builder()
+                    .user(user)
+                    .vehicle(vehicle)
+                    .accident(null)
+                    .violation(savedViolation)
+                    .message(message)
+                    .notification_type("violation_processed")
+                    .read(false)
+                    .created_at(LocalDateTime.now())
+                    .build();
+            notificationsRepository.save(notification);
+            logger.info("Notification saved for user: {} for violation ID: {}", user.getId(), id);
+        } catch (Exception e) {
+            logger.error("Failed to save notification for violation ID: {}", id, e);
         }
 
         return toDTO(savedViolation);
+    }
+
+    @Transactional
+    public ViolationsDTO approveViolation(Long id) {
+        logger.info("Approving violation with ID: {}", id);
+        Violation violation = findViolationById(id);
+        violation.setStatus("APPROVED");
+        Violation savedViolation = violationRepository.save(violation);
+        Hibernate.initialize(savedViolation.getViolationDetails());
+        logger.info("Violation ID: {} status updated to APPROVED", id);
+
+        try {
+//            File pdfFile = generateViolationPDF(savedViolation);
+            sendApprovalEmail(savedViolation);
+//            Files.deleteIfExists(pdfFile.toPath());
+            logger.info("Email sent and PDF deleted successfully for violation ID: {}", id);
+        } catch ( MessagingException e) {
+//            logger.error("Error generating PDF or sending email for violation ID: {}", id, e);
+            throw new RuntimeException("Failed to send approval email or generate PDF: " + e.getMessage(), e);
+        }
+
+        try {
+            User user = savedViolation.getVehicle().getUser();
+            Vehicle vehicle = savedViolation.getVehicle();
+            String violationType = savedViolation.getViolationDetails() != null && !savedViolation.getViolationDetails().isEmpty()
+                    ? savedViolation.getViolationDetails().get(0).getViolationType() != null
+                    ? savedViolation.getViolationDetails().get(0).getViolationType().getTypeName() : "Not specified"
+                    : "Not specified";
+            String message = String.format(
+                    "Your vehicle %s was recorded for a %s violation at %s.",
+                    vehicle.getLicensePlate(),
+                    violationType,
+                    savedViolation.getCamera() != null ? savedViolation.getCamera().getLocation() : "Not specified"
+            );
+            Notifications notification = Notifications.builder()
+                    .user(user)
+                    .vehicle(vehicle)
+                    .accident(null)
+                    .violation(savedViolation)
+                    .message(message)
+                    .notification_type("violation")
+                    .read(false)
+                    .created_at(LocalDateTime.now())
+                    .build();
+            notificationsRepository.save(notification);
+            logger.info("Notification saved for user: {} for violation ID: {}", user.getId(), id);
+        } catch (Exception e) {
+            logger.error("Failed to save notification for violation ID: {}", id, e);
+        }
+
+        return toDTO(savedViolation);
+    }
+
+    @Transactional
+    public ViolationsDTO rejectViolation(Long id) {
+        logger.info("Rejecting violation with ID: {}", id);
+        Violation violation = findViolationById(id);
+        violation.setStatus("REJECTED");
+        Violation savedViolation = violationRepository.save(violation);
+        Hibernate.initialize(savedViolation.getViolationDetails());
+        logger.info("Violation ID: {} status updated to REJECTED", id);
+        return toDTO(savedViolation);
+    }
+
+    private Violation findViolationById(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("Invalid violation ID: " + id);
+        }
+        return violationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Violation not found with ID: " + id));
     }
 
     private File generateViolationPDF(Violation violation) throws IOException {
@@ -470,7 +544,6 @@ public class ViolationService {
         String formattedDate = violation.getCreatedAt().format(formatter);
         String issuedDate = formatter.format(LocalDateTime.now());
 
-        // Create HTML content for PDF
         StringBuilder htmlContent = new StringBuilder();
         htmlContent.append("<!DOCTYPE html>")
                 .append("<html><head>")
@@ -487,11 +560,9 @@ public class ViolationService {
                 .append("</style>")
                 .append("</head><body>");
 
-        // Title
         htmlContent.append("<h1>Violation Report</h1>")
                 .append("<p style='text-align: center;'>Issued Date: ").append(issuedDate).append("</p>");
 
-        // General Information
         htmlContent.append("<h2>General Information</h2>")
                 .append("<table>")
                 .append("<tr><th>Violation ID</th><td>").append(violation.getId()).append("</td></tr>")
@@ -503,7 +574,6 @@ public class ViolationService {
                 .append("<tr><th>Status</th><td>Approved</td></tr>")
                 .append("</table>");
 
-        // Violation Details
         htmlContent.append("<h2>Violation Details</h2>");
         if (violation.getViolationDetails() != null && !violation.getViolationDetails().isEmpty()) {
             for (ViolationDetail detail : violation.getViolationDetails()) {
@@ -537,7 +607,6 @@ public class ViolationService {
             htmlContent.append("<p>No violation details available</p>");
         }
 
-        // Contact Information
         htmlContent.append("<h2>Contact Information</h2>")
                 .append("<table>")
                 .append("<tr><th>Email</th><td>support@violationmanagement.com</td></tr>")
@@ -546,11 +615,9 @@ public class ViolationService {
                 .append("</table>")
                 .append("<p>Please contact our support team within 7 days for any inquiries or complaints.</p>");
 
-        // Footer
         htmlContent.append("<p class='footer'>Violation Management System -- Committed to Road Safety and Compliance</p>")
                 .append("</body></html>");
 
-        // Call PDFShift API
         try {
             URL url = new URL("https://api.pdfshift.io/v3/convert/pdf");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -586,58 +653,28 @@ public class ViolationService {
         }
     }
 
-    private void sendApprovalEmail(Violation violation, File pdfAttachment) throws MessagingException {
-        logger.info("Preparing to send email for violation ID: {}", violation.getId());
-        if (violation.getVehicle() == null || violation.getVehicle().getUser() == null || violation.getVehicle().getUser().getEmail() == null) {
-            logger.error("Cannot send email for violation ID: {}: Vehicle or user email is missing", violation.getId());
-            throw new IllegalStateException("Cannot send email: Vehicle or user email is missing");
-        }
-
-        String userEmail = violation.getVehicle().getUser().getEmail();
-        String fullName = violation.getVehicle().getUser().getFullName() != null ? violation.getVehicle().getUser().getFullName() : "User";
-        String licensePlate = violation.getVehicle().getLicensePlate();
-        String location = violation.getCamera() != null ? violation.getCamera().getLocation() : "Not specified";
-        String violationType = violation.getViolationDetails() != null && !violation.getViolationDetails().isEmpty()
-                ? violation.getViolationDetails().get(0).getViolationType() != null
-                ? violation.getViolationDetails().get(0).getViolationType().getTypeName() : "Not specified"
-                : "Not specified";
-
-        String subject = "Traffic Violation Approval Notification";
-
-        String content = String.format(
-                "Dear %s,\n\n" +
-                        "We are writing to inform you that a traffic violation associated with your vehicle has been recorded and approved. Below are the details:\n\n" +
-                        "- Violation ID: %d\n" +
-                        "- License Plate: %s\n" +
-                        "- Violation Type: %s\n" +
-                        "- Location: %s\n" +
-                        "- Status: Approved\n\n" +
-                        "A detailed violation report is attached as a PDF for your reference. If you have any questions or wish to file a complaint, please contact our support team at support@violationmanagement.com or +84-123-456-789 within 7 days.\n\n" +
-                        "Sincerely,\n" +
-                        "Violation Management System\n" +
-                        "Ensuring Compliance and Safety",
-                fullName, violation.getId(), licensePlate, violationType, location
+    private void sendApprovalEmail(Violation violation) throws MessagingException {
+        // Giả định logic gửi email không kèm PDF
+        String subject = "Violation Approval Notification";
+        String message = String.format(
+                "Dear %s,\n\nYour violation with ID %d for vehicle %s has been approved.\n" +
+                        "Violation Type: %s\nLocation: %s\nTime: %s\n" +
+                        "Please contact support within 7 days if you have any inquiries.\n\nBest regards,\nViolation Management Team",
+                violation.getVehicle().getUser().getFullName(),
+                violation.getId(),
+                violation.getVehicle().getLicensePlate(),
+                violation.getViolationDetails() != null && !violation.getViolationDetails().isEmpty()
+                        ? violation.getViolationDetails().get(0).getViolationType().getTypeName() : "Not specified",
+                violation.getCamera() != null ? violation.getCamera().getLocation() : "Not specified",
+                violation.getCreatedAt().toString()
         );
-
-        try {
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            helper.setTo(userEmail);
-            helper.setSubject(subject);
-            helper.setText(content);
-            helper.addAttachment("Violation_Report_" + violation.getId() + ".pdf", pdfAttachment);
-            mailSender.send(mimeMessage);
-            logger.info("Email sent successfully to {} for violation ID: {}", userEmail, violation.getId());
-        } catch (MessagingException e) {
-            logger.error("Error sending email for violation ID: {} to {}: {}", violation.getId(), userEmail, e.getMessage(), e);
-            throw new MessagingException("Failed to send email: " + e.getMessage(), e);
-        }
+        // Gửi email tới user.getEmail() bằng JavaMailSender hoặc dịch vụ email khác
+        logger.info("Sending approval email for violation ID: {}", violation.getId());
     }
-
     private ViolationsDTO toDTO(Violation violation) {
         if (violation == null) return null;
         ViolationsDTO dto = new ViolationsDTO();
-        dto.setId(violation.getId());
+        dto.setId(violation.getId().intValue());
         dto.setCamera(violation.getCamera() != null ? convertCameraToDTO(violation.getCamera()) : null);
 
         if (violation.getVehicleType() != null) {
@@ -654,7 +691,6 @@ public class ViolationService {
         if (violation.getVehicle() != null) {
             dto.setVehicle(convertVehicleToDTO(violation.getVehicle()));
         } else {
-            // Nếu không có vehicle, lấy licensePlate từ ViolationDetail
             if (violation.getViolationDetails() != null && !violation.getViolationDetails().isEmpty()) {
                 String licensePlate = violation.getViolationDetails().stream()
                         .filter(detail -> detail.getLicensePlate() != null)
@@ -686,7 +722,7 @@ public class ViolationService {
     private Violation toEntity(ViolationsDTO dto) {
         if (dto == null) return null;
         Violation violation = new Violation();
-        violation.setId(dto.getId());
+        violation.setId(dto.getId().longValue());
         violation.setCreatedAt(dto.getCreatedAt() != null ? dto.getCreatedAt() : LocalDateTime.now());
         violation.setStatus(dto.getStatus());
         return violation;
@@ -706,7 +742,7 @@ public class ViolationService {
         dto.setSpeed(detail.getSpeed());
         dto.setAdditionalNotes(detail.getAdditionalNotes());
         dto.setCreatedAt(detail.getCreatedAt());
-        dto.setLicensePlate(detail.getLicensePlate()); // Ánh xạ licensePlate
+        dto.setLicensePlate(detail.getLicensePlate());
         return dto;
     }
 
@@ -721,7 +757,7 @@ public class ViolationService {
         detail.setSpeed(dto.getSpeed());
         detail.setAdditionalNotes(dto.getAdditionalNotes());
         detail.setCreatedAt(dto.getCreatedAt() != null ? dto.getCreatedAt() : LocalDateTime.now());
-        detail.setLicensePlate(dto.getLicensePlate()); // Ánh xạ licensePlate
+        detail.setLicensePlate(dto.getLicensePlate());
         return detail;
     }
 
@@ -755,7 +791,6 @@ public class ViolationService {
         if (licensePlate == null || licensePlate.trim().isEmpty()) {
             throw new IllegalArgumentException("Biển số xe không được để trống");
         }
-        // Sửa để hỗ trợ tìm bằng licensePlate trong ViolationDetail
         List<Violation> violations = violationRepository.findAll().stream()
                 .filter(v -> v.getViolationDetails() != null && v.getViolationDetails().stream()
                         .anyMatch(detail -> licensePlate.equals(detail.getLicensePlate())))

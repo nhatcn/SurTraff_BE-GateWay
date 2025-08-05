@@ -16,28 +16,33 @@ public class VehicleController {
     private VehicleService vehicleService;
 
     @GetMapping
-    public List<VehicleDTO> getAllVehicles() {
-        return vehicleService.getAllVehicles();
+    public ResponseEntity<List<VehicleDTO>> getAllVehicles() {
+        List<VehicleDTO> vehicles = vehicleService.getAllVehicles();
+        return ResponseEntity.ok(vehicles);
     }
 
     @GetMapping("/{id}")
-    public VehicleDTO getVehicleById(@PathVariable Long id) {
-        return vehicleService.getVehicleById(id);
+    public ResponseEntity<VehicleDTO> getVehicleById(@PathVariable Long id) {
+        VehicleDTO vehicle = vehicleService.getVehicleById(id);
+        return vehicle != null ? ResponseEntity.ok(vehicle) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public VehicleDTO createVehicle(@RequestBody VehicleDTO dto) {
-        return vehicleService.createVehicle(dto);
+    public ResponseEntity<VehicleDTO> createVehicle(@RequestBody VehicleDTO dto) {
+        VehicleDTO createdVehicle = vehicleService.createVehicle(dto);
+        return ResponseEntity.ok(createdVehicle);
     }
 
     @PutMapping("/{id}")
-    public VehicleDTO updateVehicle(@PathVariable Long id, @RequestBody VehicleDTO dto) {
-        return vehicleService.updateVehicle(id, dto);
+    public ResponseEntity<VehicleDTO> updateVehicle(@PathVariable Long id, @RequestBody VehicleDTO dto) {
+        VehicleDTO updatedVehicle = vehicleService.updateVehicle(id, dto);
+        return updatedVehicle != null ? ResponseEntity.ok(updatedVehicle) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
-    public void deleteVehicle(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
         vehicleService.deleteVehicle(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/user/{userId}")
