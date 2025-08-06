@@ -33,7 +33,6 @@ public class VehicleService {
     @Transactional(readOnly = true)
     public List<VehicleDTO> getAllVehicles() {
         return vehicleRepository.findAll().stream()
-                .filter(vehicle -> !Boolean.TRUE.equals(vehicle.getIsDelete()))
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
@@ -41,7 +40,6 @@ public class VehicleService {
     @Transactional(readOnly = true)
     public VehicleDTO getVehicleById(Long id) {
         return vehicleRepository.findById(id)
-                .filter(vehicle -> !Boolean.TRUE.equals(vehicle.getIsDelete()))
                 .map(this::toDTO)
                 .orElse(null);
     }
@@ -96,7 +94,6 @@ public class VehicleService {
         }
         return vehicleRepository.findByUserId(userId)
                 .stream()
-                .filter(vehicle -> !Boolean.TRUE.equals(vehicle.getIsDelete()))
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
