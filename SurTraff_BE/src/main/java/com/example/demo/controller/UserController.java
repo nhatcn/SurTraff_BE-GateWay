@@ -12,11 +12,14 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,6 +37,7 @@ public class UserController {
     private UserService userService;
     private RoleService roleService;
 
+
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUser() {
         List<UserDTO> users = userService.getAllUser();
@@ -50,7 +54,6 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> createUser(@RequestBody UserDTO userDTO) {
         try {
-
             User createdUser = userService.registerUser(userDTO);
 
             String token = JwtUtil.generateToken(createdUser.getId().toString(), createdUser.getRole().getRoleName());
@@ -70,21 +73,36 @@ public class UserController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<?> googleSignin(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> googleSignin(@RequestBody Map<String, String> request, @Value("${google.client-id}") String googleClientId) {
+        System.out.println("Google signin endpoint called");
+
         String googleToken = request.get("token");
+
+        if (googleToken == null || googleToken.isEmpty()) {
+            System.out.println("No Google token provided");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "No token provided"));
+        }
+
+        System.out.println("Google Client ID: " + googleClientId);
+        System.out.println("Received Google token: " + googleToken.substring(0, Math.min(50, googleToken.length())) + "...");
 
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                 new NetHttpTransport(), new JacksonFactory())
-                .setAudience(Collections.singletonList("359834252791-bdrg125j62411mp1u8suqqnl6v79339a.apps.googleusercontent.com"))
+                .setAudience(Collections.singletonList(googleClientId))
                 .build();
 
         try {
             GoogleIdToken idToken = verifier.verify(googleToken);
             if (idToken != null) {
+                System.out.println("Google token verified successfully");
+
                 GoogleIdToken.Payload payload = idToken.getPayload();
                 String email = payload.getEmail();
                 String name = (String) payload.get("name");
                 String avatar = (String) payload.get("picture");
+
+                System.out.println("Google user info - Email: " + email + ", Name: " + name);
 
                 // Logic được di chuyển sang Service
                 User user = userService.handleGoogleSignIn(email, name, avatar);
@@ -92,19 +110,24 @@ public class UserController {
 
                 String tokenGenerated = JwtUtil.generateToken(userDTO.getUserId().toString(), userDTO.getRoleName());
 
+                System.out.println("Google signin successful for user: " + userDTO.getUserName());
+
                 return ResponseEntity.ok(Map.of(
                         "token", tokenGenerated,
                         "userId", userDTO.getUserId().toString(),
                         "role", userDTO.getRoleName()
                 ));
+            } else {
+                System.out.println("Token verification failed - idToken is null");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Token verification failed"));
             }
         } catch (Exception e) {
+            System.out.println("Google verification error: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Xác thực Google thất bại"));
+                    .body(Map.of("error", "Google authentication failed: " + e.getMessage()));
         }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("error", "Token không hợp lệ"));
     }
 
     @PostMapping("/login")
@@ -151,17 +174,43 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping(value = "/{id}")
+    @PostMapping("/verify-password/{id}")
+    public ResponseEntity<?> verify(
+            @PathVariable Long id,
+            @RequestBody UserDTO updatedUser) {
+
+        Optional<UserDTO> existingUserOpt = userService.getUserById(id);
+
+        if (existingUserOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found"));
+        }
+
+        UserDTO existingUser = existingUserOpt.get();
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        boolean match = encoder.matches(updatedUser.getPassword(), existingUser.getPassword());
+
+        if (match) {
+            return ResponseEntity.ok(Map.of("message", "Password is correct"));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Incorrect password"));
+        }
+    }
+
+    @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(
             @PathVariable Long id,
             @RequestBody UserDTO updatedUser) throws IOException {
-        User user = userService.updateUser(id, updatedUser,null);
+        User user = userService.updateUser(id, updatedUser, null);
 
         if (user != null) {
             return ResponseEntity.ok(userService.getUserById(id).orElseThrow());
         }
         return ResponseEntity.notFound().build();
     }
+
     @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserDTO> updateUser1(
             @PathVariable Long id,
@@ -175,6 +224,7 @@ public class UserController {
         }
         return ResponseEntity.notFound().build();
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
