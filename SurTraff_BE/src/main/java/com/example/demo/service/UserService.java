@@ -122,7 +122,7 @@ public class UserService {
             newUser.setEmail(email);
             newUser.setAvatar(avatar);
             newUser.setStatus(true);
-            newUser.setRole(roleService.getRoleById(1L)
+            newUser.setRole(roleService.getRoleById(3L)
                     .orElseThrow(() -> new IllegalArgumentException("Default role not found")));
 
             return createUser(newUser);
