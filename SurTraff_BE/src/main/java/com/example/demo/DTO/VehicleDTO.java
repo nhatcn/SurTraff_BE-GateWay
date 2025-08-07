@@ -1,5 +1,6 @@
 package com.example.demo.DTO;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class VehicleDTO {
     private String brand;
     private String image;
     private Boolean isDelete;
+
 
     // Getters & Setters (already included via @Data, but kept for clarity)
     public Long getId() {

@@ -50,7 +50,9 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> createUser(@RequestBody UserDTO userDTO) {
         try {
+
             User createdUser = userService.registerUser(userDTO);
+
             String token = JwtUtil.generateToken(createdUser.getId().toString(), createdUser.getRole().getRoleName());
 
             return ResponseEntity.ok(Map.of(
@@ -160,19 +162,19 @@ public class UserController {
         }
         return ResponseEntity.notFound().build();
     }
-//    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<UserDTO> updateUser(
-//            @PathVariable Long id,
-//            @ModelAttribute UserDTO updatedUser,
-//            @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile
-//    ) throws IOException {
-//        User user = userService.updateUser(id, updatedUser, avatarFile);
-//
-//        if (user != null) {
-//            return ResponseEntity.ok(userService.getUserById(id).orElseThrow());
-//        }
-//        return ResponseEntity.notFound().build();
-//    }
+    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserDTO> updateUser1(
+            @PathVariable Long id,
+            @ModelAttribute UserDTO updatedUser,
+            @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile
+    ) throws IOException {
+        User user = userService.updateUser(id, updatedUser, avatarFile);
+
+        if (user != null) {
+            return ResponseEntity.ok(userService.getUserById(id).orElseThrow());
+        }
+        return ResponseEntity.notFound().build();
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
