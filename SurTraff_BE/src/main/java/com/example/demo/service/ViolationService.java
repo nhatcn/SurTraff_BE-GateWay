@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -653,24 +654,54 @@ public class ViolationService {
         }
     }
 
-    private void sendApprovalEmail(Violation violation) throws MessagingException {
-        // Giả định logic gửi email không kèm PDF
-        String subject = "Violation Approval Notification";
-        String message = String.format(
-                "Dear %s,\n\nYour violation with ID %d for vehicle %s has been approved.\n" +
-                        "Violation Type: %s\nLocation: %s\nTime: %s\n" +
-                        "Please contact support within 7 days if you have any inquiries.\n\nBest regards,\nViolation Management Team",
-                violation.getVehicle().getUser().getFullName(),
-                violation.getId(),
-                violation.getVehicle().getLicensePlate(),
-                violation.getViolationDetails() != null && !violation.getViolationDetails().isEmpty()
-                        ? violation.getViolationDetails().get(0).getViolationType().getTypeName() : "Not specified",
-                violation.getCamera() != null ? violation.getCamera().getLocation() : "Not specified",
-                violation.getCreatedAt().toString()
+    private void sendApprovalEmail(Violation accident) throws MessagingException {
+        String userEmail = accident.getVehicle().getUser().getEmail();
+        String fullName = accident.getVehicle().getUser().getFullName();
+        String licensePlate = accident.getVehicle().getLicensePlate();
+        String location = accident.getCamera().getLocation();
+        String subject = "Notification: Your violation has been recorded";
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(userEmail);
+        helper.setSubject(subject);
+
+        String imageCid = "violationImage001";
+        String htmlContent = String.format(
+                "<p>Dear %s,</p>" +
+                        "<p>We have recorded a violation related to your vehicle:</p>" +
+                        "<ul>" +
+                        "<li><strong>Violation ID:</strong> %d</li>" +
+                        "<li><strong>License Plate:</strong> %s</li>" +
+                        "<li><strong>Location:</strong> %s</li>" +
+                        "<li><strong>Status:</strong> Approved</li>" +
+                        "</ul>" +
+                        "<p><strong>Violation Image:</strong></p>" +
+                        "<img src='cid:%s' width='500'/>" +
+                        "<p>If you have questions, contact support.</p>" +
+                        "<p>Regards,<br>Accident Management System</p>",
+                fullName, accident.getId(), licensePlate, location, imageCid
         );
-        // Gửi email tới user.getEmail() bằng JavaMailSender hoặc dịch vụ email khác
-        logger.info("Sending approval email for violation ID: {}", violation.getId());
+        helper.setText(htmlContent, true);
+
+        String imageUrl = accident.getViolationDetails().get(0).getImageUrl();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            try (InputStream in = new URL(imageUrl).openStream()) {
+                byte[] imageBytes = in.readAllBytes();
+                ByteArrayResource imageResource = new ByteArrayResource(imageBytes);
+                helper.addInline(imageCid, imageResource, "image/jpeg");
+                logger.info("Attached image from URL: {}", imageUrl);
+            } catch (Exception e) {
+                logger.warn("Failed to load image from URL: {}. Error: {}", imageUrl, e.getMessage());
+            }
+        } else {
+            logger.warn("No image URL available for accident ID: {}", accident.getId());
+        }
+
+        mailSender.send(message);
     }
+
     private ViolationsDTO toDTO(Violation violation) {
         if (violation == null) return null;
         ViolationsDTO dto = new ViolationsDTO();
