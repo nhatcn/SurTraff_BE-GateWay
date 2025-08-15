@@ -1,228 +1,254 @@
-package com.example.demo.service;
+package com.example.demo.controller;
 
-import com.example.demo.model.User;
 import com.example.demo.DTO.UserDTO;
-import com.example.demo.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.demo.model.User;
+import com.example.demo.service.RoleService;
+import com.example.demo.service.UserService;
+import com.example.demo.util.JwtUtil;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.stream.Collectors;
+import java.util.*;
 
-@Service
-public class UserService {
+@RestController
+@RequestMapping("/api/users")
+@AllArgsConstructor
+public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
+    private JavaMailSender javaMailSender;
+    private UserService userService;
     private RoleService roleService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private CloudinaryService cloudinaryService;
+    @GetMapping
+    public ResponseEntity<List<UserDTO>> getAllUser() {
+        List<UserDTO> users = userService.getAllUser();
+        return ResponseEntity.ok(users);
+    }
 
-    private UserDTO convertToDTO(User user, boolean includePassword) {
-        if (includePassword) {
-            return new UserDTO(
-                    user.getId(),
-                    user.getUserName(),
-                    user.getFullName(),
-                    user.getEmail(),
-                    user.getAddress(),
-                    user.getPhoneNumber(),
-                    user.getStatus(),
-                    user.getPassword(),
-                    user.getAvatar(),
-                    user.getRole().getId(),
-                    user.getRole().getRoleName()
-            );
-        } else {
-            UserDTO dto = new UserDTO(
-                    user.getId(),
-                    user.getUserName(),
-                    user.getFullName(),
-                    user.getEmail(),
-                    user.getAddress(),
-                    user.getPhoneNumber(),
-                    user.getStatus(),
-                    user.getAvatar(),
-                    user.getRole().getId(),
-                    user.getRole().getRoleName()
-            );
-            dto.setPassword(null);
-            return dto;
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+        return userService.getUserById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<Map<String, String>> createUser(@RequestBody UserDTO userDTO) {
+        try {
+            User createdUser = userService.registerUser(userDTO);
+
+            String token = JwtUtil.generateToken(createdUser.getId().toString(), createdUser.getRole().getRoleName());
+
+            return ResponseEntity.ok(Map.of(
+                    "token", token,
+                    "userId", createdUser.getId().toString(),
+                    "role", createdUser.getRole().getRoleName()
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
-    public List<UserDTO> getAllUser() {
-        return userRepository.findAll().stream()
-                .map(user -> convertToDTO(user, false))
-                .collect(Collectors.toList());
-    }
+    @PostMapping("/signin")
+    public ResponseEntity<?> googleSignin(@RequestBody Map<String, String> request, @Value("${google.client-id}") String googleClientId) {
+        System.out.println("Google signin endpoint called");
 
-    public Optional<UserDTO> getUserById(Long id) {
-        return userRepository.findById(id)
-                .map(user -> convertToDTO(user, true));
-    }
+        String googleToken = request.get("token");
 
-    public Optional<UserDTO> getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .map(user -> convertToDTO(user, false));
-    }
-
-    public Optional<UserDTO> getUserByUserName(String userName) {
-        return userRepository.findByUserName(userName)
-                .map(user -> convertToDTO(user, true));
-    }
-
-
-    public User registerUser(UserDTO userDTO) {
-
-        if (getUserByUserName(userDTO.getUserName()).isPresent()) {
-            throw new IllegalArgumentException("Username already exists.");
+        if (googleToken == null || googleToken.isEmpty()) {
+            System.out.println("No Google token provided");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "No token provided"));
         }
+
+        System.out.println("Google Client ID: " + googleClientId);
+        System.out.println("Received Google token: " + googleToken.substring(0, Math.min(50, googleToken.length())) + "...");
+
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                new NetHttpTransport(), new JacksonFactory())
+                .setAudience(Collections.singletonList(googleClientId))
+                .build();
 
         try {
-            User newUser = new User();
-            newUser.setFullName(userDTO.getFullName());
-            newUser.setUserName(userDTO.getUserName());
-            newUser.setPassword(userDTO.getPassword());
-            newUser.setEmail(userDTO.getEmail());
-            newUser.setAvatar("https://th.bing.com/th/id/OIP.Fogk0Q6C7GEQEdVyrbV9MwHaHa?rs=1&pid=ImgDetMain");
-            newUser.setStatus(true);
-            newUser.setRole(roleService.getRoleById(3L)
-                    .orElseThrow(() -> new IllegalArgumentException("Default role not found")));
+            GoogleIdToken idToken = verifier.verify(googleToken);
+            if (idToken != null) {
+                System.out.println("Google token verified successfully");
 
-            return createUser(newUser);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to register user. Please try again.", e);
-        }
-    }
+                GoogleIdToken.Payload payload = idToken.getPayload();
+                String email = payload.getEmail();
+                String name = (String) payload.get("name");
+                String avatar = (String) payload.get("picture");
 
-    public User handleGoogleSignIn(String email, String name, String avatar) {
-        Optional<UserDTO> existingUserDTO = getUserByEmail(email);
+                System.out.println("Google user info - Email: " + email + ", Name: " + name);
 
-        if (existingUserDTO.isPresent()) {
-      
-            return userRepository.findByEmail(email)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        } else {
- 
-            User newUser = new User();
-            newUser.setFullName(name);
-            newUser.setEmail(email);
-            newUser.setAvatar(avatar);
-            newUser.setStatus(true);
-            newUser.setRole(roleService.getRoleById(3L)
-                    .orElseThrow(() -> new IllegalArgumentException("Default role not found")));
+                // Logic được di chuyển sang Service
+                User user = userService.handleGoogleSignIn(email, name, avatar);
+                UserDTO userDTO = userService.getUserById(user.getId()).orElseThrow();
 
-            return createUser(newUser);
-        }
-    }
+                String tokenGenerated = JwtUtil.generateToken(userDTO.getUserId().toString(), userDTO.getRoleName());
 
-    public User createUser(User user) {
-        // Chỉ encode password nếu có password (Google sign-in có thể không có password)
-        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-        return userRepository.save(user);
-    }
+                System.out.println("Google signin successful for user: " + userDTO.getUserName());
 
-    public User updateUser(Long id, UserDTO updatedUser, MultipartFile avt) throws IOException {
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isPresent()) {
-            User existingUser = userOptional.get();
-
-            if (updatedUser.getFullName() != null) {
-                existingUser.setFullName(updatedUser.getFullName());
-            }
-
-            if (updatedUser.getEmail() != null) {
-                existingUser.setEmail(updatedUser.getEmail());
-            }
-
-            if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-                existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-            }
-
-            if (updatedUser.getStatus() != null) {
-                existingUser.setStatus(updatedUser.getStatus());
-            }
-
-            if (updatedUser.getRoleId() != null) {
-                existingUser.setRole(
-                        roleService.getRoleById(updatedUser.getRoleId())
-                                .orElseThrow(() -> new IllegalArgumentException("Role not found"))
-                );
-            }
-            if(avt!= null){
-                existingUser.setAvatar(cloudinaryService.uploadImage(avt));
-            }
-
-            if (updatedUser.getAddress() != null){
-                existingUser.setAddress(updatedUser.getAddress());
-            }
-            if (updatedUser.getPhoneNumber() != null){
-                existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
-            }
-
-            return userRepository.save(existingUser);
-        }
-        return null;
-    }
-
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
-    }
-
-    public UserDTO login(String userName, String rawPassword) {
-        Optional<User> userOptional = userRepository.findByUserName(userName);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-
-            // bcrypt
-            if (passwordEncoder.matches(rawPassword, user.getPassword())) {
-                return convertToDTO(user, true);
+                return ResponseEntity.ok(Map.of(
+                        "token", tokenGenerated,
+                        "userId", userDTO.getUserId().toString(),
+                        "role", userDTO.getRoleName()
+                ));
             } else {
-                throw new IllegalArgumentException("Invalid password");
+                System.out.println("Token verification failed - idToken is null");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Token verification failed"));
             }
+        } catch (Exception e) {
+            System.out.println("Google verification error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Google authentication failed: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserDTO userDTO) {
+        try {
+            UserDTO loggedInUser = userService.login(userDTO.getUserName(), userDTO.getPassword());
+            String token = JwtUtil.generateToken(loggedInUser.getUserId().toString(), loggedInUser.getRoleName());
+
+            return ResponseEntity.ok(Map.of(
+                    "token", token,
+                    "userId", loggedInUser.getUserId().toString(),
+                    "role", loggedInUser.getRoleName()
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/forgotPassword")
+    public ResponseEntity<?> forgotPassword(@RequestBody UserDTO usersDTO) {
+        try {
+            // Logic được di chuyển sang Service
+            UserDTO userDto = userService.processForgotPassword(usersDTO.getEmail());
+
+            // Controller chỉ xử lý việc gửi email
+            sendEmail(userDto.getEmail(), userDto.getPassword(), userDto.getUserName());
+
+            return ResponseEntity.ok(userDto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to process forgot password request"));
+        }
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserDTO> getUserProfile(HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        return userService.getUserById(Long.parseLong(userId))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/verify-password/{id}")
+    public ResponseEntity<?> verify(
+            @PathVariable Long id,
+            @RequestBody UserDTO updatedUser) {
+
+        Optional<UserDTO> existingUserOpt = userService.getUserById(id);
+
+        if (existingUserOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found"));
+        }
+
+        UserDTO existingUser = existingUserOpt.get();
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        boolean match = encoder.matches(updatedUser.getPassword(), existingUser.getPassword());
+
+        if (match) {
+            return ResponseEntity.ok(Map.of("message", "Password is correct"));
         } else {
-            throw new IllegalArgumentException("Invalid username or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Incorrect password"));
         }
     }
 
- 
-    public UserDTO processForgotPassword(String email) throws IOException {
-        Optional<UserDTO> optionalUserDto = getUserByEmail(email);
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDTO> updateUser(
+            @PathVariable Long id,
+            @RequestBody UserDTO updatedUser) throws IOException {
+        User user = userService.updateUser(id, updatedUser, null);
 
-        if (optionalUserDto.isPresent()) {
-            UserDTO userDto = optionalUserDto.get();
-            String newPassword = generateRandomPassword();
-            userDto.setPassword(newPassword);
-
-            User updatedUser = updateUser(userDto.getUserId(), userDto, null);
-            if (updatedUser != null) {
-                return userDto; 
-            }
+        if (user != null) {
+            return ResponseEntity.ok(userService.getUserById(id).orElseThrow());
         }
-
-        throw new IllegalArgumentException("User not found with email: " + email);
+        return ResponseEntity.notFound().build();
     }
 
-    public static String generateRandomPassword() {
-        Random random = new Random();
-        StringBuilder password = new StringBuilder();
-        for (int i = 0; i < 6; i++) {
-            password.append(random.nextInt(10));
+    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserDTO> updateUser1(
+            @PathVariable Long id,
+            @ModelAttribute UserDTO updatedUser,
+            @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile
+    ) throws IOException {
+        User user = userService.updateUser(id, updatedUser, avatarFile);
+
+        if (user != null) {
+            return ResponseEntity.ok(userService.getUserById(id).orElseThrow());
         }
-        return password.toString();
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Phương thức gửi email nên được giữ ở Controller hoặc tạo EmailService riêng
+    private void sendEmail(String toEmail, String password, String user) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(toEmail);
+            helper.setSubject("Password Reset");
+
+            String htmlContent = "<p style=\"color: #333; font-size: 16px;\">Dear " + user + ",</p>"
+                    + "<p style=\"color: #333; font-size: 16px;\">Your new password is: "
+                    + "<span style=\"font-size: 32px; background-color: #f0f0f0; padding: 5px;\">" + password + "</span></p>"
+                    + "<p style=\"color: #333; font-size: 16px;\">Thank you for using our service.</p>"
+                    + "<p style=\"color: #333; font-size: 16px;\">Best regards,<br>Group1-SE1712</p>";
+
+            helper.setText(htmlContent, true);
+            javaMailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 }
