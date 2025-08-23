@@ -86,7 +86,19 @@ public class VehicleService {
             throw new IllegalArgumentException("Vehicle not found with ID: " + id);
         }
     }
-
+    
+    @Transactional
+    public void activeVehicle(Long id) {
+        Optional<Vehicle> optionalVehicle = vehicleRepository.findById(id);
+        if (optionalVehicle.isPresent()) {
+            Vehicle vehicle = optionalVehicle.get();
+            vehicle.setIsDelete(false);
+            vehicleRepository.save(vehicle);
+        } else {
+            throw new IllegalArgumentException("Vehicle not found with ID: " + id);
+        }
+    }
+    
     @Transactional(readOnly = true)
     public List<VehicleDTO> getVehiclesByUserId(Long userId) {
         if (userId == null) {
