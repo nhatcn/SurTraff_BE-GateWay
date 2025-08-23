@@ -54,7 +54,9 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> createUser(@RequestBody UserDTO userDTO) {
         try {
+
             User createdUser = userService.registerUser(userDTO);
+
 
             String token = JwtUtil.generateToken(createdUser.getId().toString(), createdUser.getRole().getRoleName());
 
