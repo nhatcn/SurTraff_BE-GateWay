@@ -51,7 +51,13 @@ public class VehicleController {
         vehicleService.deleteVehicle(id);
         return ResponseEntity.noContent().build();
     }
-
+    
+    @PostMapping("/{id}/activate")
+    public ResponseEntity<Void> activeVehicle(@PathVariable Long id) {
+        vehicleService.activeVehicle(id);
+        return ResponseEntity.noContent().build();
+    }
+    
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<VehicleDTO>> getVehiclesByUserId(@PathVariable Long userId) {
         List<VehicleDTO> vehicles = vehicleService.getVehiclesByUserId(userId);
