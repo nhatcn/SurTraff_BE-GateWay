@@ -6,6 +6,7 @@ public class NotificationsDTO {
     private Long id;
     private Long userId;
     private Long vehicleId;
+    private String licensePlate;
     private Long accidentId;
     private Long violationId;
     private String message;
@@ -16,16 +17,25 @@ public class NotificationsDTO {
     public NotificationsDTO() {
     }
 
-    public NotificationsDTO(Long id, Long userId, Long vehicleId, Long accidentId, Long violationId, String message, String notificationType, Date createdAt, boolean read) {
+    public NotificationsDTO(Long id, Long userId, Long vehicleId, String licensePlate, Long accidentId, Long violationId, String message, String notificationType, Date createdAt, boolean read) {
         this.id = id;
         this.userId = userId;
         this.vehicleId = vehicleId;
+        this.licensePlate = licensePlate;
         this.accidentId = accidentId;
         this.violationId = violationId;
         this.message = message;
         this.notificationType = notificationType;
         this.createdAt = createdAt;
         this.read = read;
+    }
+
+    public String getLicensePlate() {
+        return licensePlate;
+    }
+
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
     }
 
     public Long getId() {
