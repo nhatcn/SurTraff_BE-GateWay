@@ -23,6 +23,7 @@ public class NotificationsService {
                 n.getId(),
                 n.getUser() != null ? Long.valueOf(n.getUser().getId()) : null,
                 n.getVehicle() != null ? Long.valueOf(n.getVehicle().getId()) : null,
+                n.getVehicle() != null ? n.getVehicle().getLicensePlate() : null, // 🔥 Thêm dòng này
                 n.getAccident() != null ? Long.valueOf(n.getAccident().getId()) : null,
                 n.getViolation() != null ? Long.valueOf(n.getViolation().getId()) : null,
                 n.getMessage(),
@@ -39,6 +40,7 @@ public class NotificationsService {
                 n.getId(),
                 n.getUser() != null ? Long.valueOf(n.getUser().getId()) : null,
                 n.getVehicle() != null ? Long.valueOf(n.getVehicle().getId()) : null,
+                n.getVehicle() != null ? n.getVehicle().getLicensePlate() : null, // 🔥 Thêm dòng này
                 n.getAccident() != null ? Long.valueOf(n.getAccident().getId()) : null,
                 n.getViolation() != null ? Long.valueOf(n.getViolation().getId()) : null,
                 n.getMessage(),
