@@ -316,6 +316,9 @@ public class ViolationService {
         violation.setCamera(cameraRepository.findById(dto.getCamera().getId()).orElseThrow());
         violation.setCreatedAt(dto.getCreatedAt());
         violation.setStatus(dto.getStatus());
+        if(dto.getVehicle()!=null){
+            violation.setVehicle(vehicleRepository.getReferenceById(dto.getVehicle().getId()));
+        }
         violation = violationRepository.save(violation);
 
         for (ViolationDetailDTO detailDTO : dto.getViolationDetails()) {
@@ -324,11 +327,12 @@ public class ViolationService {
             detail.setLocation(dto.getCamera().getLocation());
             detail.setViolationTime(detailDTO.getViolationTime());
             detail.setViolationType(violationTypeRepository.findById(detailDTO.getViolationTypeId()).orElseThrow());
-
             if (imageFile != null && !imageFile.isEmpty()) {
                 detail.setImageUrl(cloudinaryService.uploadImage(imageFile));
             }
-
+            if (dto.getViolationDetails() != null ) {
+                detail.setLicensePlate(dto.getViolationDetails().get(0).getLicensePlate());
+            }
             if (videoFile != null && !videoFile.isEmpty()) {
                 detail.setVideoUrl(cloudinaryService.uploadVideo(videoFile));
             }

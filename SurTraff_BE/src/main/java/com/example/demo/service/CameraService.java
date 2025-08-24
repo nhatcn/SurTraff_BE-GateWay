@@ -59,7 +59,6 @@ public class CameraService {
           String thumbnailURL=  cloudinaryService.uploadImage(thumbnail);
           camera.setThumbnail(thumbnailURL);
         }
-        
 
 
         camera.setViolationType(violationTypeRepository.findById(dto.getViolationTypeId()).get());
